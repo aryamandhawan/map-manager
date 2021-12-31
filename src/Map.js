@@ -168,6 +168,15 @@ const Map = (props) => {
   return (
     <div>
       <div className="map-container" ref={mapContainerRef} />
+      <div className="sidebarStyle">
+        <div>Longitude : {lng}</div>
+        <div>Longitude : {lng}</div>
+
+        <div>Longitude : {lng}</div>
+
+        <div>Longitude : {lng}</div>
+        <div>Longitude : {lng}</div>
+      </div>
     </div>
   );
 };
