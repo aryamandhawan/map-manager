@@ -5,9 +5,9 @@ import "./Map.css";
 mapboxgl.accessToken =
   ***REMOVED***;
 
-const Map = () => {
+const Map = (props) => {
+  const { style, layer, data } = props;
   const mapContainerRef = useRef(null);
-
   const [lng, setLng] = useState(138.60345125198364);
   const [lat, setLat] = useState(-34.929553631263);
   const [zoom, setZoom] = useState(20);
@@ -16,20 +16,20 @@ const Map = () => {
   useEffect(() => {
     const map = new mapboxgl.Map({
       container: mapContainerRef.current,
-      style: "mapbox://styles/mapbox/dark-v10",
+      style: props.style,
       center: [lng, lat],
       zoom: zoom,
     });
-
     // Add navigation control (the +/- zoom buttons)
     // map.addControl(new mapboxgl.NavigationControl(), 'top-right');
-
     map.on("move", () => {
       setLng(map.getCenter().lng.toFixed(4));
       setLat(map.getCenter().lat.toFixed(4));
-      setZoom(map.getZoom().toFixed(26));
+      setZoom(map.getZoom().toFixed(1));
+      console.log(zoom);
     });
     map.on("load", () => {
+      console.log("Map Load | props =", props);
       map.addSource("image_data", {
         type: "geojson",
         // Use a URL for the value for the `data` property.
@@ -41,7 +41,7 @@ const Map = () => {
         source: "image_data",
         layout: {
           // Make the layer visible by default.
-          visibility: "visible",
+          visibility: "none",
         },
         paint: {
           "circle-radius": 5,
@@ -61,14 +61,14 @@ const Map = () => {
         type: "line",
         source: "sequence_data",
         layout: {
-          "visibility": "none",
+          visibility: "none",
           "line-cap": "round",
           "line-join": "round",
         },
         paint: {
           "line-opacity": 0.6,
           "line-color": "rgb(53, 175, 109)",
-          "line-width": 2,
+          "line-width": 10,
         },
       });
 
@@ -88,7 +88,7 @@ const Map = () => {
           // Source has several layers. We visualize the one with name 'sequence'.
           "source-layer": "sequence",
           layout: {
-            "visibility": "none",
+            visibility: "none",
             "line-cap": "round",
             "line-join": "round",
           },
@@ -100,32 +100,27 @@ const Map = () => {
         },
         "road-label" // Arrange our new layer beneath this layer
       );
-      
 
-      map.on("mouseover", "image_point_layer", (e) => {
+      map.setLayoutProperty(props.layer, "visibility", "visible");
+
+      map.on("mouseover", layer, (e) => {
         map.getCanvas().style.cursor = "pointer";
       });
-      map.on("mouseleave", "image_point_layer", (e) => {
+      map.on("mouseleave", layer, (e) => {
         map.getCanvas().style.cursor = "";
       });
-      map.on("click", "image_point_layer", (e) => {
-        console.log("click", "image_point_layer");
+      map.on("click", layer, (e) => {
+        console.log("CLicked layer", layer);
         // Copy coordinates array.
-        // Change the cursor style as a UI indicator.
-
         const coordinates = e.features[0].geometry.coordinates.slice();
         const img_id = e.features[0].properties.id;
         const seq_id = e.features[0].properties.sequence_id;
-
+        
         const innerHtmlContent = `<div ><p>IMAGE_ID = ${img_id} SEQEUNCE_ID = ${seq_id}</p><p>Image_coordinates = ${coordinates}</p></div>`;
-
         const divElement = document.createElement("div");
         const imgElement = document.createElement("div");
-
         divElement.innerHTML = innerHtmlContent;
-        imgElement.innerHTML =
-          '<img id="image" style="object-fit:contain;width:200px;height:200px;border: solid 1px #CCC">';
-
+        imgElement.innerHTML = '<img id="image" >';
         divElement.appendChild(imgElement);
 
         map.getCanvas().style.cursor = "pointer";
@@ -134,18 +129,17 @@ const Map = () => {
         )
           .then((res) => res.json())
           .then((result) => {
-            console.log(result.thumb_2048_url);
+            console.log("Fetching image", result.thumb_2048_url);
             let image = document.getElementById("image");
             image.src = result.thumb_2048_url;
           })
           .catch((err) => console.log("Error at Div Enter", err));
         setLng(coordinates[0]);
         setLat(coordinates[1]);
-        setZoom(map.getZoom() + 2);
         map.on("mouseleave", "image_point_layer", (e) => {
           console.log("mouseleave", "image_point_layer");
           map.getCanvas().style.cursor = "";
-          // popup.remove();
+          popup.remove();
         });
         const popup = new mapboxgl.Popup()
           .setLngLat(coordinates)
@@ -166,17 +160,13 @@ const Map = () => {
       //   console.log("clicked layer color -> yellow");
       // });
     });
+
     // Clean up on unmount
     return () => map.remove();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [style, layer]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div>
-      <div className="sidebarStyle">
-        <div>
-          Longitude: {lng} | Latitude: {lat} | Zoom: {zoom}
-        </div>
-      </div>
       <div className="map-container" ref={mapContainerRef} />
     </div>
   );
