@@ -1,5 +1,6 @@
 import React,{ReactDOM} from 'react';
 import Map from './Map';
+import "./App.css";
 
 class App extends React.Component {
   
@@ -19,11 +20,12 @@ class App extends React.Component {
   render() {
     return (
       <div>
-        <div className="btn">
-        <button onClick={this.handleClick}>{this.state.layer}</button>
-        </div>
         <div >
           <Map lng="138.60345125198364" lat="-34.929553631263" layer={this.state.layer} style={this.state.style}/>
+        </div>
+        <div className="btn">
+
+        <button  onClick={this.handleClick}>{this.state.layer}</button>
         </div>
       </div>
     );

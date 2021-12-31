@@ -1,8 +1,8 @@
 .btn{
-    position: absolute;
+    position: relative;
+    z-index:1 ;
     top: 0;
-    left: 1000;
+    left: 0;
     margin: 12px;
     background-color: #404040;
- 
   }
