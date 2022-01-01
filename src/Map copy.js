@@ -22,12 +22,11 @@ const Map = (props) => {
     });
     // Add navigation control (the +/- zoom buttons)
     // map.addControl(new mapboxgl.NavigationControl(), 'top-right');
-    
     map.on("move", () => {
       setLng(map.getCenter().lng.toFixed(4));
       setLat(map.getCenter().lat.toFixed(4));
       setZoom(map.getZoom().toFixed(1));
-      console.log("MOVIN MAP");
+      console.log(zoom);
     });
     map.on("load", () => {
       console.log("Map Load | props =", props);
@@ -139,8 +138,8 @@ const Map = (props) => {
         setLat(coordinates[1]);
         map.on("mouseleave", "image_point_layer", (e) => {
           console.log("mouseleave", "image_point_layer");
-          if(popup)
-          {popup.remove();}
+          map.getCanvas().style.cursor = "";
+          popup.remove();
         });
         const popup = new mapboxgl.Popup()
           .setLngLat(coordinates)
