@@ -1,40 +1,38 @@
 import React, { useRef, useEffect, useState } from "react";
-import mapboxgl from "mapbox-gl";
+import mapboxgl from "mapbox-gl"; // eslint-disable-line import/no-webpack-loader-syntax
+import Optionsfield from "./components/Optionsfield";
 import "./Map.css";
-
 mapboxgl.accessToken =
-  ***REMOVED***;
+  "***REMOVED***";
 
-const Map = (props) => {
-  const { style, layer, data } = props;
+export default function Map() {
   const mapContainerRef = useRef(null);
-  const [lng, setLng] = useState(138.60345125198364);
-  const [lat, setLat] = useState(-34.929553631263);
-  const [zoom, setZoom] = useState(20);
+  const [map, setMap] = useState(null);
 
-  // Initialize map when component mounts
+  const [lng, setLng] = useState(138.603451251989);
+  const [lat, setLat] = useState(-34.929553631263);
+  const [zoom, setZoom] = useState(10);
+
+  const [active_layer, setActive_layer] = useState("image_point_layer");
+  const options = ["image_point_layer", "sequence_layer"];
+
+  // INITIALIZE MAP
   useEffect(() => {
+    // if (map.current) return; // initialize map only once
     const map = new mapboxgl.Map({
       container: mapContainerRef.current,
-      style: props.style,
+      style: "mapbox://styles/mapbox/streets-v11",
       center: [lng, lat],
-      zoom: zoom,
+      zoom: zoom
     });
-    // Add navigation control (the +/- zoom buttons)
-    // map.addControl(new mapboxgl.NavigationControl(), 'top-right');
-    
-    map.on("move", () => {
-      setLng(map.getCenter().lng.toFixed(4));
-      setLat(map.getCenter().lat.toFixed(4));
-      setZoom(map.getZoom().toFixed(1));
-      console.log("MOVIN MAP");
-    });
+    // ON MAP ADD DATA SOURCES AND RENDER MAP | HANDLE IMAGE CLICK
     map.on("load", () => {
-      console.log("Map Load | props =", props);
+      // console.log("Map Load | props =", props);
       map.addSource("image_data", {
         type: "geojson",
         // Use a URL for the value for the `data` property.
-        data: "https://cdn.glitch.me/2b9e76de-99e3-4e07-b284-4340598de754/images.geojson?v=1640740024336",
+        data:
+          "https://cdn.glitch.me/2b9e76de-99e3-4e07-b284-4340598de754/images.geojson?v=1640740024336"
       });
       map.addLayer({
         id: "image_point_layer",
@@ -42,144 +40,145 @@ const Map = (props) => {
         source: "image_data",
         layout: {
           // Make the layer visible by default.
-          visibility: "none",
+          visibility: "visible"
         },
         paint: {
           "circle-radius": 5,
           "circle-stroke-width": 1,
           "circle-color": "green",
-          "circle-stroke-color": "white",
-        },
+          "circle-stroke-color": "white"
+        }
       });
 
       map.addSource("sequence_data", {
         type: "geojson",
         // Use a URL for the value for the `data` property.
-        data: "https://cdn.glitch.me/2b9e76de-99e3-4e07-b284-4340598de754/sequences.geojson?v=1640794541996",
+        data:
+          "https://cdn.glitch.me/2b9e76de-99e3-4e07-b284-4340598de754/sequences.geojson?v=1640794541996"
       });
       map.addLayer({
         id: "sequence_layer",
         type: "line",
         source: "sequence_data",
         layout: {
-          visibility: "none",
+          "visibility": "none",
           "line-cap": "round",
-          "line-join": "round",
+          "line-join": "round"
         },
         paint: {
           "line-opacity": 0.6,
           "line-color": "rgb(53, 175, 109)",
-          "line-width": 10,
-        },
+          "line-width": 10
+        }
       });
+      setMap(map);
 
-      map.addSource("mapillary", {
-        type: "vector",
-        tiles: [
-          "https://tiles.mapillary.com/maps/vtp/mly1_public/2/{z}/{x}/{y}?access_token=MLY|4142433049200173|72206abe5035850d6743b23a49c41333",
-        ],
-        minzoom: 6,
-        maxzoom: 14,
-      });
-      map.addLayer(
-        {
-          id: "mapillary", // Layer ID
-          type: "line",
-          source: "mapillary", // ID of the tile source created above
-          // Source has several layers. We visualize the one with name 'sequence'.
-          "source-layer": "sequence",
-          layout: {
-            visibility: "none",
-            "line-cap": "round",
-            "line-join": "round",
-          },
-          paint: {
-            "line-opacity": 0.6,
-            "line-color": "rgb(53, 175, 109)",
-            "line-width": 2,
-          },
-        },
-        "road-label" // Arrange our new layer beneath this layer
-      );
-
-      map.setLayoutProperty(props.layer, "visibility", "visible");
-
-      map.on("mouseover", layer, (e) => {
-        map.getCanvas().style.cursor = "pointer";
-      });
-      map.on("mouseleave", layer, (e) => {
-        map.getCanvas().style.cursor = "";
-      });
-      map.on("click", layer, (e) => {
-        console.log("CLicked layer", layer);
+      // HANDLE image_point_layer CLICK
+      map.on("click", "image_point_layer", (e) => {
+        console.log("Clicked layer", "image_point_layer");
         // Copy coordinates array.
         const coordinates = e.features[0].geometry.coordinates.slice();
         const img_id = e.features[0].properties.id;
         const seq_id = e.features[0].properties.sequence_id;
-        
-        const innerHtmlContent = `<div ><p>IMAGE_ID = ${img_id} SEQEUNCE_ID = ${seq_id}</p><p>Image_coordinates = ${coordinates}</p></div>`;
-        const divElement = document.createElement("div");
-        const imgElement = document.createElement("div");
-        divElement.innerHTML = innerHtmlContent;
-        imgElement.innerHTML = '<img id="image" >';
-        divElement.appendChild(imgElement);
-
-        map.getCanvas().style.cursor = "pointer";
+        var image=null;
+        var popup=null;
+        // const innerHtmlContent = `<div ><p>IMAGE_ID = ${img_id} SEQEUNCE_ID = ${seq_id}</p><p>Image_coordinates = ${coordinates}</p></div>`;
+        // const divElement = document.createElement("div");
+        // const imgElement = document.createElement("div");
+        // divElement.innerHTML = innerHtmlContent;
+        // imgElement.innerHTML = '<img id="image" >';
+        // divElement.appendChild(imgElement);
+    
         fetch(
           `https://graph.mapillary.com/${img_id}?fields=thumb_2048_url&access_token=MLY%7C4603337513049480%7C2b5a735be0aa893f4e079309d23b1423`
         )
           .then((res) => res.json())
           .then((result) => {
-            console.log("Fetching image", result.thumb_2048_url);
-            let image = document.getElementById("image");
-            image.src = result.thumb_2048_url;
+            // console.log("Fetching image", result.thumb_2048_url);
+            image = result.thumb_2048_url;
+
+            // let image = document.getElementById("image");
+            // image.src = result.thumb_2048_url;
+          })
+          .then(()=>{
+            popup = new mapboxgl.Popup()
+          .setLngLat(coordinates)
+          .setHTML(`<div >
+                        <p>
+                          IMAGE_ID = ${img_id} SEQEUNCE_ID = ${seq_id}
+                        </p>
+                        <p>
+                          Image_coordinates = ${coordinates}
+                        </p>
+                        <img src=${image}>
+                      </div>`)
+          .addTo(map);
           })
           .catch((err) => console.log("Error at Div Enter", err));
         setLng(coordinates[0]);
         setLat(coordinates[1]);
-        map.on("mouseleave", "image_point_layer", (e) => {
-          console.log("mouseleave", "image_point_layer");
-          if(popup)
-          {popup.remove();}
-        });
-        const popup = new mapboxgl.Popup()
-          .setLngLat(coordinates)
-          .setDOMContent(divElement)
-          .addTo(map);
+        console.log("call for image to set popup")
+        // map.on("mouseleave", "image_point_layer", (e) => {
+        //   console.log("mouseleave", "image_point_layer");
+        //   map.getCanvas().style.cursor = "";
+        //   popup.remove();
+        // });
+        
+        console.log("popup set",popup);
+
       });
-
-      // map.on("click", "image_point_layer", (e) => {
-      //   const clickedLayer = "image_point_layer";
-      //   const visibility = map.getLayoutProperty(clickedLayer, "visibility");
-      //   if (visibility === "visible") {
-      //     map.setLayoutProperty(clickedLayer, "visibility", "none");
-      //     map.setLayoutProperty("sequence_layer", "visibility", "visible");
-      //   } else {
-      //     map.setLayoutProperty("sequence_layer", "visibility", "none");
-      //     map.setLayoutProperty(clickedLayer, "visibility", "visible");
-      //   }
-      //   console.log("clicked layer color -> yellow");
-      // });
     });
-
-    // Clean up on unmount
     return () => map.remove();
-  }, [style, layer]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (map) {
+      map.setLayoutProperty(active_layer, "visibility", "visible");
+    }
+  }, [active_layer]);
+
+
+  // BASIC MAP INTERACTION HANDLERS
+    if (map) {
+      map.on("mouseover", active_layer, (e) => {
+        map.getCanvas().style.cursor = "pointer";
+      });
+      map.on("mouseleave", active_layer, (e) => {
+        map.getCanvas().style.cursor = "";
+      });
+      map.on("move", () => {
+        setLng(map.getCenter().lng.toFixed(4));
+        setLat(map.getCenter().lat.toFixed(4));
+        setZoom(map.getZoom().toFixed(1));
+        // console.log("MOVIN MAP");
+      });
+    }
+  // HANDLE UPDATES FROM USER INTERACTION WITH OPTIONS FIELD.
+  const changeLayer = (i) => {
+    map.setLayoutProperty(i, "visibility", "visible");
+    for(var j=0;j<options.length;j++)
+    {
+      if(options[j]!==i)
+      {
+        map.setLayoutProperty(options[j], "visibility", "none");
+        // console.log("for loop options",options[j]);
+      }
+    }
+    setActive_layer(i);
+
+  };
 
   return (
     <div>
-      <div className="map-container" ref={mapContainerRef} />
       <div className="sidebarStyle">
-        <div>Longitude : {lng}</div>
-        <div>Longitude : {lng}</div>
-
-        <div>Longitude : {lng}</div>
-
-        <div>Longitude : {lng}</div>
-        <div>Longitude : {lng}</div>
+        Longitude: {lng} | Latitude: {lat} | Zoom: {zoom}
       </div>
+      <div ref={mapContainerRef} className="map-container" />
+      <Optionsfield
+        options={options}
+        active_layer={active_layer}
+        changeLayer={changeLayer}
+      />
     </div>
   );
-};
-
-export default Map;
+}
