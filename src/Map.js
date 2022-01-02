@@ -11,11 +11,11 @@ export default function Map() {
 
   const [lng, setLng] = useState(138.603451251989);
   const [lat, setLat] = useState(-34.929553631263);
-  const [zoom, setZoom] = useState(10);
+  const [zoom, setZoom] = useState(14);
 
-  const [active_layer, setActive_layer] = useState("image_point_layer");
   const options = ["image_point_layer", "sequence_layer"];
-
+  const [active_layer, setActive_layer] = useState(options[1]);
+  
   // INITIALIZE MAP
   useEffect(() => {
     // if (map.current) return; // initialize map only once
@@ -40,13 +40,45 @@ export default function Map() {
         source: "image_data",
         layout: {
           // Make the layer visible by default.
-          visibility: "visible"
+          visibility: "none"
         },
         paint: {
           "circle-radius": 5,
+          // [
+          //   "interpolate", ["linear"], ["get", "id"],
+          //   // zoom is 5 (or less) -> circle radius will be 1px
+          //   130586109110840, 5,
+          //   // zoom is 10 (or greater) -> circle radius will be 5px
+          //   504104450735431, 10,
+          // ],
           "circle-stroke-width": 1,
-          "circle-color": "green",
-          "circle-stroke-color": "white"
+          "circle-stroke-color": "white",
+          // "rgb(53, 175, 109)"
+          "circle-color": [
+            // "rgb",
+            // // red is higher when feature.properties.temperature is higher
+            // ["%",  ["get", "id"],255],
+            // // green is always zero
+            // ["%",  ["get", "id"],255],
+            // // blue is higher when feature.properties.temperature is lower
+            // ["%",  ["get", "id"],255]
+            // // 109
+            // ["step"], 
+            // ["number", ["%",["get", "captured_at"],4], 1], 
+            // 0,"red",
+            // 1,"green",
+            // 2,"blue",
+            // 3,"orange",
+            // 4,"#FC4E2A", 
+            // 5,"#E31A1C", 
+            // "#BD0026", 2000, 
+            // "#000000"
+            'match',
+            ["%",  ["get", "id"],255],
+            1, '#00C0C0',
+            2, '#006666',
+            '#000000'
+        ]
         }
       });
 
@@ -66,13 +98,23 @@ export default function Map() {
           "line-join": "round"
         },
         paint: {
-          "line-opacity": 0.6,
-          "line-color": "rgb(53, 175, 109)",
-          "line-width": 10
+          "line-opacity": 1,
+          "line-width": 10,
+          "line-color": 
+          // "rgb(53, 175, 109)",
+          [
+            'match',
+            ["%",  ["get", "image_id"],3],
+            0,'orange',
+            1, 'blue',
+            2, 'red',
+            '#000000'
+            
+          ]
         }
       });
       setMap(map);
-
+      map.setLayoutProperty(active_layer, "visibility", "visible");
       // HANDLE image_point_layer CLICK
       map.on("click", "image_point_layer", (e) => {
         console.log("Clicked layer", "image_point_layer");
@@ -127,6 +169,27 @@ export default function Map() {
         console.log("popup set",popup);
 
       });
+      map.on("click", "sequence_layer", (e) => {
+        const seq_id = e.features[0].properties.image_id;
+        console.log("Clicked layer", "sequence_layer id",seq_id);
+        map.setPaintProperty('sequence_layer','line-color',
+        [
+          'match',
+          // ["%",  ["get", "image_id"],3],
+          ["get", "image_id"],
+          seq_id,'yellow',    
+          '#000000'      
+        ]
+        )
+        // Copy coordinates array.
+        // const coordinates = e.features[0].geometry.coordinates.slice();
+        // // const img_id = e.features[0].properties.id;
+        // console.log("e.features",e.features[0]);
+        // console.log("e.features[0]",e.features[0]);
+
+        // console.log(seq_id,coordinates[0]);
+      }); 
+      
     });
     return () => map.remove();
   }, []);
