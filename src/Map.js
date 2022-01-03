@@ -11,11 +11,21 @@ export default function Map() {
 
   const [lng, setLng] = useState(138.603451251989);
   const [lat, setLat] = useState(-34.929553631263);
-  const [zoom, setZoom] = useState(14);
+  const [zoom, setZoom] = useState(18);
 
   const options = ["image_point_layer", "sequence_layer"];
   const [active_layer, setActive_layer] = useState(options[1]);
-  
+
+  const [focusSeq,setfocus_seq] = useState(null);
+  var focused_sequence = null;
+  const default_seq_layer_paint =[
+    'match',
+    ["%",  ["get", "image_id"],3],
+    0,'orange',
+    1, 'blue',
+    2, 'red',
+    '#000000'
+  ]
   // INITIALIZE MAP
   useEffect(() => {
     // if (map.current) return; // initialize map only once
@@ -98,8 +108,8 @@ export default function Map() {
           "line-join": "round"
         },
         paint: {
-          "line-opacity": 1,
-          "line-width": 10,
+          "line-opacity": 0.6,
+          "line-width": 8,
           "line-color": 
           // "rgb(53, 175, 109)",
           [
@@ -170,35 +180,73 @@ export default function Map() {
 
       });
       map.on("click", "sequence_layer", (e) => {
-        const seq_id = e.features[0].properties.image_id;
-        console.log("Clicked layer", "sequence_layer id",seq_id);
-        map.setPaintProperty('sequence_layer','line-color',
-        [
-          'match',
-          // ["%",  ["get", "image_id"],3],
-          ["get", "image_id"],
-          seq_id,'yellow',    
-          '#000000'      
-        ]
-        )
-        // Copy coordinates array.
-        // const coordinates = e.features[0].geometry.coordinates.slice();
-        // // const img_id = e.features[0].properties.id;
-        // console.log("e.features",e.features[0]);
-        // console.log("e.features[0]",e.features[0]);
-
-        // console.log(seq_id,coordinates[0]);
+        const seq_id = e.features[0].properties.id;
+        handleFocusSequence(e);
+  // ! Using variable focused_sequence as accessing seq_id sate always returns null here
+        if(focused_sequence !== seq_id)
+        {
+          map.setPaintProperty('sequence_layer',
+          'line-color',
+          [
+            'match',
+            ["get", "id"],
+            seq_id,'yellow',    
+            '#000000'      
+          ]
+          )
+          map.setPaintProperty('sequence_layer','line-width',
+          [
+            'match',
+            ["get", "id"],
+            seq_id,10,    
+            2      
+          ]
+          )
+          map.setPaintProperty('sequence_layer','line-opacity',
+          [
+            'match',
+            ["get", "id"],
+            seq_id,1,    
+            0.6    
+          ]
+          )
+          focused_sequence = seq_id;
+        }
+        else 
+        {
+          map.setPaintProperty('sequence_layer','line-color',default_seq_layer_paint);
+          map.setPaintProperty('sequence_layer','line-width',8)
+          map.setPaintProperty('sequence_layer','line-opacity',0.6)
+          focused_sequence = null;
+        }
+        
       }); 
       
     });
     return () => map.remove();
   }, []);
-
+  function handleFocusSequence(e)
+  {
+    console.log("function called",e.seq_id,e.features[0].properties.id,focusSeq);
+    setfocus_seq(e.features[0].properties.id);
+    console.log("function returning",e.features[0].properties.id,focusSeq)
+  }
   useEffect(() => {
     if (map) {
       map.setLayoutProperty(active_layer, "visibility", "visible");
     }
   }, [active_layer]);
+
+  useEffect(() => {
+    if (map) {
+      console.log("focusSeq ->",focusSeq);
+    }
+  }, [focusSeq]);
+  useEffect(() => {
+    if (map) {
+      console.log("focused_sequence ->",focused_sequence);
+    }
+  }, [focused_sequence]);
 
 
   // BASIC MAP INTERACTION HANDLERS
