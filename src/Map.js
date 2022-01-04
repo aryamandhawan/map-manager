@@ -11,27 +11,43 @@ export default function Map() {
 
   const [lng, setLng] = useState(138.603451251989);
   const [lat, setLat] = useState(-34.929553631263);
-  const [zoom, setZoom] = useState(18);
+  const [zoom, setZoom] = useState(12);
 
   const options = ["image_point_layer", "sequence_layer"];
-  const [active_layer, setActive_layer] = useState(options[1]);
-
-  const [focusSeq,setfocus_seq] = useState(null);
-  var focused_sequence = null;
-  const default_seq_layer_paint =[
-    'match',
-    ["%",  ["get", "image_id"],3],
-    0,'orange',
-    1, 'blue',
-    2, 'red',
-    '#000000'
-  ]
+  const [active_layer, setActive_layer] = useState(options[0]);
+  var popup = null;
+  // Store Focused SEQ
+  const [focusSeq,_setfocusSeq] = useState(null);
+  const focusSeqRef = useRef(focusSeq);
+  const setfocusSeq = data => {
+    focusSeqRef.current = data;
+    _setfocusSeq(data);
+  };
+  const default_image_layer_paint ={
+    "circle-radius": 4,
+    "circle-stroke-width": 0.5,
+    "circle-stroke-color": "black",
+    "circle-color": "blue"
+  }
+  const default_seq_layer_paint ={
+    "line-opacity": 0.6,
+    "line-width": 5,
+    "line-color": 
+    [
+      'match',
+      ["%",  ["get", "image_id"],3],
+      0,'orange',
+      1, 'blue',
+      2, 'red',
+      '#000000'
+    ]
+  }
   // INITIALIZE MAP
   useEffect(() => {
     // if (map.current) return; // initialize map only once
     const map = new mapboxgl.Map({
       container: mapContainerRef.current,
-      style: "mapbox://styles/mapbox/streets-v11",
+      style: "mapbox://styles/mapbox/dark-v10",
       center: [lng, lat],
       zoom: zoom
     });
@@ -52,44 +68,7 @@ export default function Map() {
           // Make the layer visible by default.
           visibility: "none"
         },
-        paint: {
-          "circle-radius": 5,
-          // [
-          //   "interpolate", ["linear"], ["get", "id"],
-          //   // zoom is 5 (or less) -> circle radius will be 1px
-          //   130586109110840, 5,
-          //   // zoom is 10 (or greater) -> circle radius will be 5px
-          //   504104450735431, 10,
-          // ],
-          "circle-stroke-width": 1,
-          "circle-stroke-color": "white",
-          // "rgb(53, 175, 109)"
-          "circle-color": [
-            // "rgb",
-            // // red is higher when feature.properties.temperature is higher
-            // ["%",  ["get", "id"],255],
-            // // green is always zero
-            // ["%",  ["get", "id"],255],
-            // // blue is higher when feature.properties.temperature is lower
-            // ["%",  ["get", "id"],255]
-            // // 109
-            // ["step"], 
-            // ["number", ["%",["get", "captured_at"],4], 1], 
-            // 0,"red",
-            // 1,"green",
-            // 2,"blue",
-            // 3,"orange",
-            // 4,"#FC4E2A", 
-            // 5,"#E31A1C", 
-            // "#BD0026", 2000, 
-            // "#000000"
-            'match',
-            ["%",  ["get", "id"],255],
-            1, '#00C0C0',
-            2, '#006666',
-            '#000000'
-        ]
-        }
+        paint: default_image_layer_paint
       });
 
       map.addSource("sequence_data", {
@@ -107,21 +86,7 @@ export default function Map() {
           "line-cap": "round",
           "line-join": "round"
         },
-        paint: {
-          "line-opacity": 0.6,
-          "line-width": 8,
-          "line-color": 
-          // "rgb(53, 175, 109)",
-          [
-            'match',
-            ["%",  ["get", "image_id"],3],
-            0,'orange',
-            1, 'blue',
-            2, 'red',
-            '#000000'
-            
-          ]
-        }
+        paint: default_seq_layer_paint
       });
       setMap(map);
       map.setLayoutProperty(active_layer, "visibility", "visible");
@@ -132,122 +97,76 @@ export default function Map() {
         const coordinates = e.features[0].geometry.coordinates.slice();
         const img_id = e.features[0].properties.id;
         const seq_id = e.features[0].properties.sequence_id;
-        var image=null;
-        var popup=null;
-        // const innerHtmlContent = `<div ><p>IMAGE_ID = ${img_id} SEQEUNCE_ID = ${seq_id}</p><p>Image_coordinates = ${coordinates}</p></div>`;
-        // const divElement = document.createElement("div");
-        // const imgElement = document.createElement("div");
-        // divElement.innerHTML = innerHtmlContent;
-        // imgElement.innerHTML = '<img id="image" >';
-        // divElement.appendChild(imgElement);
-    
-        fetch(
-          `https://graph.mapillary.com/${img_id}?fields=thumb_2048_url&access_token=MLY%7C4603337513049480%7C2b5a735be0aa893f4e079309d23b1423`
-        )
-          .then((res) => res.json())
-          .then((result) => {
-            // console.log("Fetching image", result.thumb_2048_url);
-            image = result.thumb_2048_url;
-
-            // let image = document.getElementById("image");
-            // image.src = result.thumb_2048_url;
-          })
-          .then(()=>{
-            popup = new mapboxgl.Popup()
-          .setLngLat(coordinates)
-          .setHTML(`<div >
-                        <p>
-                          IMAGE_ID = ${img_id} SEQEUNCE_ID = ${seq_id}
-                        </p>
-                        <p>
-                          Image_coordinates = ${coordinates}
-                        </p>
-                        <img src=${image}>
-                      </div>`)
-          .addTo(map);
-          })
-          .catch((err) => console.log("Error at Div Enter", err));
+        
+        if(img_id !== focusSeqRef.current)
+        {
+          showPopup(map,coordinates,img_id,seq_id);
+        }
+        else {
+          
+          popup.remove();
+        }
         setLng(coordinates[0]);
         setLat(coordinates[1]);
         console.log("call for image to set popup")
-        // map.on("mouseleave", "image_point_layer", (e) => {
-        //   console.log("mouseleave", "image_point_layer");
-        //   map.getCanvas().style.cursor = "";
-        //   popup.remove();
-        // });
-        
-        console.log("popup set",popup);
-
       });
-      map.on("click", "sequence_layer", (e) => {
+
+      // CHANGE PROPERTIES OF LAYERS ON INTERACTION
+      map.on("click", "image_point_layer", (e) => {
         const seq_id = e.features[0].properties.id;
-        handleFocusSequence(e);
-  // ! Using variable focused_sequence as accessing seq_id sate always returns null here
-        if(focused_sequence !== seq_id)
+       
+        if(seq_id !== focusSeqRef.current)
         {
-          map.setPaintProperty('sequence_layer',
-          'line-color',
-          [
+          map.setPaintProperty('image_point_layer','circle-color', [
             'match',
             ["get", "id"],
-            seq_id,'yellow',    
-            '#000000'      
+            seq_id,'gold',
+            '#000000'
           ]
           )
+          setfocusSeq(seq_id);
+        }
+        else 
+        {
+          
+          map.setPaintProperty('image_point_layer','circle-color',default_image_layer_paint["circle-color"]);
+          setfocusSeq(null);
+        }
+      }); 
+      map.on("click", "sequence_layer", (e) => {
+        const seq_id = e.features[0].properties.id;
+       
+        if(seq_id !== focusSeqRef.current)
+        {
           map.setPaintProperty('sequence_layer','line-width',
           [
             'match',
             ["get", "id"],
             seq_id,10,    
-            2      
+            0     
           ]
           )
-          map.setPaintProperty('sequence_layer','line-opacity',
-          [
-            'match',
-            ["get", "id"],
-            seq_id,1,    
-            0.6    
-          ]
-          )
-          focused_sequence = seq_id;
+          setfocusSeq(seq_id);
         }
         else 
         {
-          map.setPaintProperty('sequence_layer','line-color',default_seq_layer_paint);
+
+          console.log(default_seq_layer_paint["line-color"])
+          map.setPaintProperty('sequence_layer','line-color',default_seq_layer_paint["line-color"]);
           map.setPaintProperty('sequence_layer','line-width',8)
           map.setPaintProperty('sequence_layer','line-opacity',0.6)
-          focused_sequence = null;
+          setfocusSeq(null);
         }
-        
       }); 
-      
     });
     return () => map.remove();
   }, []);
-  function handleFocusSequence(e)
-  {
-    console.log("function called",e.seq_id,e.features[0].properties.id,focusSeq);
-    setfocus_seq(e.features[0].properties.id);
-    console.log("function returning",e.features[0].properties.id,focusSeq)
-  }
+
   useEffect(() => {
     if (map) {
       map.setLayoutProperty(active_layer, "visibility", "visible");
     }
   }, [active_layer]);
-
-  useEffect(() => {
-    if (map) {
-      console.log("focusSeq ->",focusSeq);
-    }
-  }, [focusSeq]);
-  useEffect(() => {
-    if (map) {
-      console.log("focused_sequence ->",focused_sequence);
-    }
-  }, [focused_sequence]);
-
 
   // BASIC MAP INTERACTION HANDLERS
     if (map) {
@@ -261,7 +180,6 @@ export default function Map() {
         setLng(map.getCenter().lng.toFixed(4));
         setLat(map.getCenter().lat.toFixed(4));
         setZoom(map.getZoom().toFixed(1));
-        // console.log("MOVIN MAP");
       });
     }
   // HANDLE UPDATES FROM USER INTERACTION WITH OPTIONS FIELD.
@@ -272,12 +190,36 @@ export default function Map() {
       if(options[j]!==i)
       {
         map.setLayoutProperty(options[j], "visibility", "none");
-        // console.log("for loop options",options[j]);
       }
     }
     setActive_layer(i);
-
   };
+
+  const showPopup = (map,coordinates,img_id,seq_id)=>{
+    var image=null;
+    fetch(
+      `https://graph.mapillary.com/${img_id}?fields=thumb_2048_url&access_token=MLY%7C4603337513049480%7C2b5a735be0aa893f4e079309d23b1423`
+    )
+      .then((res) => res.json())
+      .then((result) => {
+        image = result.thumb_2048_url;
+      })
+      .then(()=>{
+        popup = new mapboxgl.Popup()
+      .setLngLat(coordinates)
+      .setHTML(`<div >
+                    <p>
+                      IMAGE_ID = ${img_id} SEQEUNCE_ID = ${seq_id}
+                    </p>
+                    <p>
+                      Image_coordinates = ${coordinates}
+                    </p>
+                    <img src=${image}>
+                  </div>`)
+      .addTo(map);
+      })
+      .catch((err) => console.log("Error Setting up POPUP", err));
+  }
 
   return (
     <div>
