@@ -1,5 +1,5 @@
 ## Project developed using Mapbox and React.
- Developed using Images and their metadata data from Mapillary.
+ Developed using Images and their metadata sourced from Mapillary.
  
  Preview at https://master.d3jc07hach1tvj.amplifyapp.com/
 
