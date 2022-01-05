@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from "react";
 import mapboxgl from "mapbox-gl"; // eslint-disable-line import/no-webpack-loader-syntax
-import Optionsfield from "./components/Optionsfield";
+import Navbar from "./components/Navbar";
 import "./Map.css";
 
 mapboxgl.accessToken =
@@ -224,7 +224,7 @@ export default function Map() {
         Longitude: {lng} | Latitude: {lat} | Zoom: {zoom}
       </div>
       <div ref={mapContainerRef} className="map-container"/>
-      <Optionsfield
+      <Navbar
         options={options}
         active_layer={active_layer}
         changeLayer={changeLayer}
