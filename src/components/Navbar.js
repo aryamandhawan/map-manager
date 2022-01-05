@@ -19,7 +19,7 @@ const Optionsfield = (props) => {
             setSel(option);
           }}
         >
-          {option}
+          {option==='image_point_layer'?'Images':'Sequences'}
         </NavDropdown.Item>
       </>
     );
@@ -29,8 +29,8 @@ const Optionsfield = (props) => {
       <Navbar  bg="dark" variant="dark" expand="lg">
         <Nav className="navbar navbar-expand-sm ">
           <div class="navbar-nav ">
-            <Nav.Link >Map-Manager v2.0</Nav.Link>
-            <NavDropdown title={`Layer : ${sel}`} id="basic-nav-dropdown">
+            <Nav.Link >Map-Manager</Nav.Link>
+            <NavDropdown title={`Layer : ${sel==='image_point_layer'?'Images':'Sequences'}`} id="basic-nav-dropdown">
               {props.options.map(renderOptions)}
             </NavDropdown>
           </div>

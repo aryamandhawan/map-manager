@@ -1,6 +1,6 @@
 {
-  "name": "frontend",
-  "version": "0.1.0",
+  "name": "map_manager",
+  "version": "0.2.0",
   "dependencies": {
     "mapbox-gl": "^1.11.1",
     "react": "^16.13.1",
@@ -22,5 +22,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  }
+  },
+  "license": "UNLICENSED",
+  "author": "Aryaman Dhawan <dhawan.aryaman0206@gmail.com>"
+
 }
