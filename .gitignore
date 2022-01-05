@@ -21,3 +21,12 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+
+/.vscode/
+/src/Logic_loading_map.js
+/src/Map copy.js
+/src/Map PaintSequences.js
+src/components/Legend.js
+src/Toggle_activeLayers.js
+.gitignore copy
