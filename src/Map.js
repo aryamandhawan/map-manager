@@ -15,7 +15,6 @@ export default function Map() {
   const [zoom, setZoom] = useState(12);
 
   const options = ["image_point_layer", "sequence_layer"];
-  // const [active_layer, setActive_layer] = useState(options[0]);
 
   const [active_layer, _setactive_layer] = useState(options[0]);
   const active_layerRef = useRef(active_layer);
@@ -224,7 +223,7 @@ export default function Map() {
       <div className="sidebarStyle">
         Longitude: {lng} | Latitude: {lat} | Zoom: {zoom}
       </div>
-      <div ref={mapContainerRef} className="map-container" />
+      <div ref={mapContainerRef} className="map-container"/>
       <Optionsfield
         options={options}
         active_layer={active_layer}
