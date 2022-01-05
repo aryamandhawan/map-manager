@@ -4,13 +4,20 @@ import { Navbar, NavDropdown, Nav } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 const Optionsfield = (props) => {
-  const [sel, setSel] = useState(props.active_layer);
+  const [sel, setSel] = useState(props._active[0]);
+  const [region,setRegion] = useState(props._active[1]);
+    
   useEffect(() => {
-    console.log("seleced", sel);
-    props.changeLayer(sel);
+    console.log("[NAVBAR] seleced layer", sel);
+    props._functions[0](sel);
   }, [sel]);
+  
+  useEffect(() => {
+    console.log("[NAVBAR] region", sel);
+    props._functions[1](region);
+  }, [region]);
 
-  const renderOptions = (option, i) => {
+  const renderLayerOptions = (option, i) => {
     return (
       <>
         <NavDropdown.Item
@@ -19,7 +26,21 @@ const Optionsfield = (props) => {
             setSel(option);
           }}
         >
-          {option==='image_point_layer'?'Images':'Sequences'}
+          {option}
+        </NavDropdown.Item>
+      </>
+    );
+  };
+  const renderRegionOptions = (option, i) => {
+    return (
+      <>
+        <NavDropdown.Item
+          key={option[i]}
+          onClick={(e) => {
+            setRegion(option);
+          }}
+        >
+          {option}
         </NavDropdown.Item>
       </>
     );
@@ -28,10 +49,13 @@ const Optionsfield = (props) => {
     <>
       <Navbar  bg="dark" variant="dark" expand="lg">
         <Nav className="navbar navbar-expand-sm ">
-          <div class="navbar-nav ">
-            <Nav.Link >Map-Manager</Nav.Link>
+          <div className="navbar-nav">
+            <Nav.Link variant = "light">Map-Manager</Nav.Link>
             <NavDropdown title={`Layer : ${sel==='image_point_layer'?'Images':'Sequences'}`} id="basic-nav-dropdown">
-              {props.options.map(renderOptions)}
+              {props.options.layers.map(renderLayerOptions)}
+            </NavDropdown>
+            <NavDropdown title={`Region : ${region}`} id="basic-nav-dropdown">
+              {props.options.regions.map(renderRegionOptions)}
             </NavDropdown>
           </div>
         </Nav>
