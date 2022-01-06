@@ -31,10 +31,5 @@
     "type": "git",
     "url": "git+https://github.com/aryamandhawan/map-manager.git"
   },
-  "author": "aryaman dhawan",
-  "license": "UNLICENSED",
-  "bugs": {
-    "url": "https://github.com/aryamandhawan/map-manager/issues"
-  },
-  "homepage": "https://github.com/aryamandhawan/map-manager#readme"
+  "author": "aryaman dhawan"
 }
