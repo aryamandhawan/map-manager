@@ -1,7 +1,6 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import { Navbar, NavDropdown, Nav } from "react-bootstrap";
-import "bootstrap/dist/css/bootstrap.min.css";
 
 const Optionsfield = (props) => {
   const [sel, setSel] = useState(props._active[0]);
