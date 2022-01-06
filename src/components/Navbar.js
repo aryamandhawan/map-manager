@@ -25,7 +25,7 @@ const Optionsfield = (props) => {
             setSel(option);
           }}
         >
-          {option}
+          {option==='image_point_layer'?'Images':'Sequences'}
         </NavDropdown.Item>
       </>
     );
