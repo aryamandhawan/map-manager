@@ -4,8 +4,9 @@
   "dependencies": {
     "mapbox-gl": "^1.11.1",
     "react": "^16.13.1",
+    "react-bootstrap": "^2.1.0",
     "react-dom": "^16.13.1",
-    "react-scripts": "^3.4.3"
+    "react-scripts": "^5.0.0"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -23,6 +24,16 @@
       "last 1 safari version"
     ]
   },
+  "description": "Developed using Images and their metadata sourced from Mapillary.",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aryamandhawan/map-manager.git"
+  },
+  "author": "aryaman dhawan",
   "license": "UNLICENSED",
-  "author": "Aryaman Dhawan <dhawan.aryaman0206@gmail.com>"
+  "bugs": {
+    "url": "https://github.com/aryamandhawan/map-manager/issues"
+  },
+  "homepage": "https://github.com/aryamandhawan/map-manager#readme"
 }
