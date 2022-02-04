@@ -7,7 +7,6 @@
 
 ## *New features to be added* 
 - Adding data from more regions.
-- Filtering images based on data and location.
 - Filter images based on data and location.
 - Visualising COVID spread timeline on the world map.
 
