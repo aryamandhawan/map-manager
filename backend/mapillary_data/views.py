@@ -42,7 +42,7 @@ def get_image_data(request):
     
     images_data_json = { "type": "FeatureCollection", "features": [] }
     # QUERY FOR ALL IMAGES
-    image_dataset = collection.find()
+    image_dataset = collection.find().limit(20)
     for image_data in image_dataset :
         images_data_json['features'].append(image_data)
     new_d = json.loads(json_util.dumps(images_data_json))
