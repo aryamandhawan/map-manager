@@ -1,7 +1,8 @@
 import React, { useRef, useEffect, useState } from "react";
-import mapboxgl from "mapbox-gl"; 
+import mapboxgl from "mapbox-gl";
 import Navbar from "./components/Navbar";
 import "./Map.css";
+import axios from "axios";
 
 mapboxgl.accessToken =
   "pk.eyJ1IjoiendlbHN0ZXJuIiwiYSI6ImNreHE1cmZlajUxYWozMHBmdnoyOTl0dDQifQ.4AQBzB3LzGjE72d_9iSWSA";
@@ -36,7 +37,8 @@ export default function Map() {
   };
   const [active_region, setactive_region] = useState(jsonOptions.regions[1]);
   const [fully_loaded, setFully_loaded] = useState(false);
-  const img_data_url = `https://cdn.glitch.global/2b9e76de-99e3-4e07-b284-4340598de754/${active_region.toLowerCase()}_images.geojson`;
+  // const img_data_url = `https://cdn.glitch.global/2b9e76de-99e3-4e07-b284-4340598de754/${active_region.toLowerCase()}_images.geojson`;
+  const img_data_url = `http://127.0.0.1:8000/api/images?region=${active_region.toLowerCase()}`;
   const seq_data_url = `https://cdn.glitch.global/2b9e76de-99e3-4e07-b284-4340598de754/${active_region.toLowerCase()}_sequences.geojson`;
   var popup = null;
   // Store Focused SEQ
@@ -69,22 +71,18 @@ export default function Map() {
   };
   // INITIALIZE MAP
   useEffect(() => {
-    console.log(img_data_url);
-    // if (map.current) return; // initialize map only once
     const map = new mapboxgl.Map({
       container: mapContainerRef.current,
       style: "mapbox://styles/mapbox/dark-v10",
       center: [lng, lat],
       zoom: zoom,
     });
-    // ON MAP ADD DATA SOURCES AND RENDER MAP | HANDLE IMAGE CLICK
+    // ON MAP LOAD ADD DATA SOURCES AND RENDER MAP | HANDLE IMAGE CLICK
     map.on("load", () => {
       map.addSource("image_data", {
         type: "geojson",
-        // Use a URL for the value for the `data` property.
-        // Adelaide
-        // data: "https://cdn.glitch.global/2b9e76de-99e3-4e07-b284-4340598de754/adelaide_images.geojson?v=1641403815022",
-        // Delhi
+        // Adelaide Images
+        // data: `http://127.0.0.1:8000/api/images?region=${active_region.toLowerCase()}`;
         data: img_data_url,
       });
       map.addLayer({
@@ -100,10 +98,8 @@ export default function Map() {
 
       map.addSource("sequence_data", {
         type: "geojson",
-        // Use a URL for the value for the `data` property.
-        // Adelaide
+        // Adelaide Sequences
         // data: "https://cdn.glitch.global/2b9e76de-99e3-4e07-b284-4340598de754/adealide_sequences.geojson?v=1641403805122",
-        // Delhi
         data: seq_data_url,
       });
       map.addLayer({
@@ -123,31 +119,43 @@ export default function Map() {
 
       map.on("click", active_layerRef.current, (e) => {
         const coordinates = e.features[0].geometry.coordinates.slice();
-        console.log("FLY TP", coordinates);
         //corresponds to img_id in case of img_layer and seq_id in sequence_layer
         const sel_id = e.features[0].properties.id;
         const seq_id = e.features[0].properties.sequence_id;
         var fly_to_coord = null;
         var fly_zoom = null;
-        console.log(e.lngLat);
+        // console.log(e.lngLat);
         if (sel_id !== focusSeqRef.current) {
+          // console.log("FLY TO", coordinates);
           fly_to_coord =
             active_layerRef.current === "image_point_layer"
               ? [coordinates[0], coordinates[1] + 0.0001]
               : e.lngLat;
-          console.log(fly_to_coord);
+          // console.log(fly_to_coord);
           fly_zoom = map.getZoom() > 18 ? map.getZoom() : 18;
           map.flyTo({
             center: fly_to_coord,
             zoom: fly_zoom,
             speed: 1,
             curve: 1,
-            // easing(t) {
-            //   return t;
-            // },
           });
 
           if (active_layerRef.current === "image_point_layer") {
+            console.log("Requesting axios", img_data_url,"for region",active_region);
+            axios
+              .get(img_data_url, {
+                params: {
+                  region : active_region,
+                  image_id: e.features[0].properties.id,
+                  geometry: e.features[0].geometry,
+                },
+              })
+              .then((data) => {
+                console.log("axios req got data : ",typeof(data));
+              })
+              .catch((e) => {
+                console.log("error", e);
+              });
             showPopup(
               active_layerRef.current,
               map,
@@ -195,6 +203,7 @@ export default function Map() {
           }
         }
       });
+
       // BASIC MAP INTERACTION HANDLERS
       map.on("mouseover", active_layer, (e) => {
         map.getCanvas().style.cursor = "pointer";
