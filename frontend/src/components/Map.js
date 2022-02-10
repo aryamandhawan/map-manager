@@ -10,6 +10,7 @@ mapboxgl.accessToken =
 export default function Map() {
   const mapContainerRef = useRef(null);
   const [map, setMap] = useState(null);
+  const num_neighbours = 5; // SET NUMBER OF NEIGHBOURS
   // // Adealide
   const [lng, setLng] = useState(138.603451251989);
   const [lat, setLat] = useState(-34.929553631263);
@@ -36,6 +37,13 @@ export default function Map() {
     _setactive_layer(data);
   };
   const [active_region, setactive_region] = useState(jsonOptions.regions[1]);
+
+  const [toggleNeighbours, _setToggleNeighbours] = useState(false);
+  const toggleNeighboursRef = useRef(toggleNeighbours);
+  const setToggleNeighbours = (data) => {
+    toggleNeighboursRef.current = data;
+    _setToggleNeighbours(data);
+  };
   const [fully_loaded, setFully_loaded] = useState(false);
   // const img_data_url = `https://cdn.glitch.global/2b9e76de-99e3-4e07-b284-4340598de754/${active_region.toLowerCase()}_images.geojson`;
   const img_data_url = `http://127.0.0.1:8000/api/images?region=${active_region.toLowerCase()}`;
@@ -81,18 +89,27 @@ export default function Map() {
       get_initial_data(map);
       setMap(map);
       map.setLayoutProperty(active_layer, "visibility", "visible");
-     
+      map.on("click", (e) => {
+        // console.log("reverting from normal click");
+        revert_map_defaults(map, popup);
+      });
       map.on("click", active_layerRef.current, (e) => {
         const coordinates = e.features[0].geometry.coordinates.slice();
         const sel_id = e.features[0].properties.id;
         const seq_id = e.features[0].properties.sequence_id;
-        console.log(sel_id , focusSeqRef.current, sel_id === focusSeqRef.current)
-        // SELECTED ITEM IS NOT FOCUSED
+        // console.log(
+        //   sel_id,
+        //   focusSeqRef.current,
+        //   sel_id === focusSeqRef.current
+        // );
+        // CLICKED ITEM( image_point/ sequence) IS NOT SELECTED
         if (sel_id !== focusSeqRef.current) {
           set_focus(map, e, coordinates, sel_id, seq_id);
-        // FOCUSED ON SELECTED LAYER
+          // CLICKED ON SELECTED LAYER
         } else {
+          // console.log("reverting from activelayerref");
           revert_map_defaults(map, popup);
+          setfocusSeq(null);
         }
       });
 
@@ -187,7 +204,6 @@ export default function Map() {
     });
   }
   function set_focus(map, e, coordinates, sel_id, seq_id) {
-    
     // CENTER MAP ON SELECTED ITEM
     const fly_to_coord =
       active_layerRef.current === "image_point_layer"
@@ -200,8 +216,6 @@ export default function Map() {
       speed: 1,
       curve: 1,
     });
-
-  
     if (active_layerRef.current === "image_point_layer") {
       console.log(
         "Requesting axios",
@@ -209,27 +223,14 @@ export default function Map() {
         "for region",
         active_region
       );
-      axios
-        .get(img_data_url, {
-          params: {
-            region: active_region,
-            image_id: e.features[0].properties.id,
-            geometry: e.features[0].geometry,
-          },
-        })
-        .then((data) => {
-          console.log("axios req got data : ", typeof data);
-        })
-        .catch((e) => {
-          console.log("error", e);
-        });
       showPopup(active_layerRef.current, map, coordinates, sel_id, seq_id);
+      show_nearest_neighbours(e, map);
       map.setPaintProperty("image_point_layer", "circle-color", [
         "match",
         ["get", "id"],
         sel_id,
-        "white",
-        "#000000",
+        "blue",
+        "purple",
       ]);
       setfocusSeq(sel_id);
     } else {
@@ -246,13 +247,12 @@ export default function Map() {
   }
   function revert_map_defaults(map, popup) {
     if (active_layerRef.current === "image_point_layer") {
-      popup.remove();
+      if (popup) popup.remove();
       map.setPaintProperty(
         "image_point_layer",
         "circle-color",
         default_image_layer_paint["circle-color"]
       );
-      setfocusSeq(null);
     } else if (active_layerRef.current === "sequence_layer") {
       map.setPaintProperty(
         "sequence_layer",
@@ -261,7 +261,6 @@ export default function Map() {
       );
       map.setPaintProperty("sequence_layer", "line-width", 8);
       map.setPaintProperty("sequence_layer", "line-opacity", 0.6);
-      setfocusSeq(null);
     }
   }
   // HANDLE UPDATES FROM USER INTERACTION WITH NAVBAR.
@@ -282,7 +281,37 @@ export default function Map() {
     setLat(jsonOptions.region_coordinates[0][i][1]);
     setactive_region(i);
   };
-
+  const toggleNeighboursState = (i) => {
+    setToggleNeighbours(i);
+    console.log("[Map.js] toggleNeighbours", toggleNeighbours, "[Navbar] i", i);
+  };
+  // NEAREST NEIGHBOURS
+  function show_nearest_neighbours(e, map) {
+    console.log("show_nearest_neighbours", toggleNeighboursRef.current);
+    if (toggleNeighboursRef.current) {
+      axios
+        .get(img_data_url, {
+          params: {
+            image_id: e.features[0].properties.id,
+            geometry: e.features[0].geometry,
+            num_neighbours: num_neighbours,
+          },
+        })
+        .then((data) => {
+          const neighbours = data.data["features"];
+          map.setPaintProperty("image_point_layer", "circle-color", [
+            "match",
+            ["get", "id"],
+            data.data["features"],
+            "yellow",
+            "red",
+          ]);
+        })
+        .catch((e) => {
+          console.log("error", e);
+        });
+    }
+  }
 
   return (
     <div>
@@ -293,7 +322,7 @@ export default function Map() {
       <Navbar
         options={jsonOptions}
         _active={[active_layer, active_region]}
-        _functions={[changeLayer, changeRegion]}
+        _functions={[changeLayer, changeRegion, toggleNeighboursState]}
       />
     </div>
   );
