@@ -28,9 +28,11 @@ def get_image_data(request):
     region = request.GET.get('region', "adelaide")
     id = request.GET.get('image_id', None)
     geometry = request.GET.get('geometry', None)
+    num_neighbours = request.GET.get('num_neighbours', None)
     print("region",region)
     print("id",id)
-    print("geometry",geometry)
+    print("geometry",geometry," ",type(geometry))
+    print("num_neighbours",num_neighbours)
     print("\n\n")
 
     # DB CONNECTION 
@@ -39,14 +41,35 @@ def get_image_data(request):
     collection_name = region+"_images"
     print("collection_name" , collection_name)
     collection = mydb[collection_name]
-    
     images_data_json = { "type": "FeatureCollection", "features": [] }
+    
+    if(id != None and geometry!=None):
+        print("id != None and geometry!=None")
+        geometry = json.loads(geometry)
+        print("geometry ",geometry, type(geometry))
+        print( 'geometry["coordinates"]', geometry["coordinates"] , type( geometry["coordinates"] ))
+        print( 'geometry["coordinates"][0]', geometry["coordinates"][0] , type( geometry["coordinates"][0] ))
+        query_ = { "geometry" : { "$near" : { "$geometry" : { "type":"Point" , "coordinates":  [ geometry["coordinates"][0],geometry["coordinates"][1] ]   } } } }
+        image_dataset = collection.find(query_).limit(int(num_neighbours))
+        for image_data in image_dataset :
+            images_data_json['features'].append(image_data["properties"]["id"])
+    else:
+        print("NOT id != None and geometry!=None")
+        image_dataset = collection.find()
+        print("image_dataset",type(image_dataset))
+        for image_data in image_dataset :
+            images_data_json['features'].append(image_data)
+
+        images_data_json = json.loads(json_util.dumps(images_data_json))
+        # print("data sent",image_dataset.size())
+
     # QUERY FOR ALL IMAGES
-    image_dataset = collection.find().limit(20)
-    for image_data in image_dataset :
-        images_data_json['features'].append(image_data)
-    new_d = json.loads(json_util.dumps(images_data_json))
-    return JsonResponse(new_d, safe=True)
+    # for image_data in image_dataset :
+    #     # print(image_data["properties"]["id"])
+    #     images_data_json['features'].append(image_data)
+    # images_data_json = json.loads(json_util.dumps(images_data_json))
+    # print (new_d)
+    return JsonResponse(images_data_json, safe=True)
     # # request.
     # if region == None:
     #     region = "adelaide"
