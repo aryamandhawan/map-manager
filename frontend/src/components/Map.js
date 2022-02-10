@@ -37,24 +37,26 @@ export default function Map() {
     _setactive_layer(data);
   };
   const [active_region, setactive_region] = useState(jsonOptions.regions[1]);
-
-  const [toggleNeighbours, _setToggleNeighbours] = useState(false);
-  const toggleNeighboursRef = useRef(toggleNeighbours);
-  const setToggleNeighbours = (data) => {
-    toggleNeighboursRef.current = data;
-    _setToggleNeighbours(data);
-  };
-  const [fully_loaded, setFully_loaded] = useState(false);
-  // const img_data_url = `https://cdn.glitch.global/2b9e76de-99e3-4e07-b284-4340598de754/${active_region.toLowerCase()}_images.geojson`;
-  const img_data_url = `http://127.0.0.1:8000/api/images?region=${active_region.toLowerCase()}`;
-  const seq_data_url = `https://cdn.glitch.global/2b9e76de-99e3-4e07-b284-4340598de754/${active_region.toLowerCase()}_sequences.geojson`;
-  var popup = null;
   const [focusSeq, _setfocusSeq] = useState(null);
   const focusSeqRef = useRef(focusSeq);
   const setfocusSeq = (data) => {
     focusSeqRef.current = data;
     _setfocusSeq(data);
   };
+  const [toggleNeighbours, _setToggleNeighbours] = useState(false);
+  const toggleNeighboursRef = useRef(toggleNeighbours);
+  const setToggleNeighbours = (data) => {
+    toggleNeighboursRef.current = data;
+    _setToggleNeighbours(data);
+  };
+  
+
+  const [fully_loaded, setFully_loaded] = useState(false);
+  // const img_data_url = `https://cdn.glitch.global/2b9e76de-99e3-4e07-b284-4340598de754/${active_region.toLowerCase()}_images.geojson`;
+  const img_data_url = `http://127.0.0.1:8000/api/images?region=${active_region.toLowerCase()}`;
+  const seq_data_url = `https://cdn.glitch.global/2b9e76de-99e3-4e07-b284-4340598de754/${active_region.toLowerCase()}_sequences.geojson`;
+  var popup = null;
+  
   const default_image_layer_paint = {
     "circle-radius": 4,
     "circle-stroke-width": 0.6,
@@ -90,27 +92,22 @@ export default function Map() {
       setMap(map);
       map.setLayoutProperty(active_layer, "visibility", "visible");
       map.on("click", (e) => {
-        // console.log("reverting from normal click");
         revert_map_defaults(map, popup);
+        setfocusSeq(null);
       });
       map.on("click", active_layerRef.current, (e) => {
         const coordinates = e.features[0].geometry.coordinates.slice();
         const sel_id = e.features[0].properties.id;
         const seq_id = e.features[0].properties.sequence_id;
-        // console.log(
-        //   sel_id,
-        //   focusSeqRef.current,
-        //   sel_id === focusSeqRef.current
-        // );
         // CLICKED ITEM( image_point/ sequence) IS NOT SELECTED
         if (sel_id !== focusSeqRef.current) {
           set_focus(map, e, coordinates, sel_id, seq_id);
           // CLICKED ON SELECTED LAYER
-        } else {
-          // console.log("reverting from activelayerref");
-          revert_map_defaults(map, popup);
-          setfocusSeq(null);
-        }
+        } 
+        // else {
+        //   revert_map_defaults(map, popup);
+        //   // setfocusSeq(null);
+        // }
       });
 
       // BASIC MAP INTERACTION HANDLERS
@@ -131,7 +128,7 @@ export default function Map() {
     });
     return () => map.remove();
   }, [active_layer, active_region]);
-
+  
   // HANDLE "ON CLICK" MAP INTERACTIONS
   function showPopup(layer_name, map, coordinates, sel_id, seq_id) {
     if (layer_name === "image_point_layer") {
@@ -217,13 +214,8 @@ export default function Map() {
       curve: 1,
     });
     if (active_layerRef.current === "image_point_layer") {
-      console.log(
-        "Requesting axios",
-        img_data_url,
-        "for region",
-        active_region
-      );
       showPopup(active_layerRef.current, map, coordinates, sel_id, seq_id);
+      
       show_nearest_neighbours(e, map);
       map.setPaintProperty("image_point_layer", "circle-color", [
         "match",
@@ -315,13 +307,13 @@ export default function Map() {
 
   return (
     <div>
-      <div className="sidebarStyle">
+      {/* <div className="sidebarStyle">
         Longitude: {lng} | Latitude: {lat} | Zoom: {zoom}
-      </div>
+      </div> */}
       <div ref={mapContainerRef} className="map-container" />
       <Navbar
         options={jsonOptions}
-        _active={[active_layer, active_region]}
+        _active={[active_layer, active_region, focusSeqRef]}
         _functions={[changeLayer, changeRegion, toggleNeighboursState]}
       />
     </div>
