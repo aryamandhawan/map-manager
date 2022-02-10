@@ -1,12 +1,18 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import { Navbar, NavDropdown, Nav } from "react-bootstrap";
-import { ToggleButton } from "react-bootstrap";
+import { Form,ToggleButton, Container } from "react-bootstrap";
 const Optionsfield = (props) => {
   const [sel, setSel] = useState(props._active[0]);
   const [region, setRegion] = useState(props._active[1]);
   const [showNeighbours, setShowNeighbours] = useState(false);
-  
+  const [v,setv] = useState(props._active[2]);
+
+  useEffect(() => {
+    console.log("[NAVBAR] v", props._active[2]);
+    // props._functions[0](sel);
+  }, [v]);
+
   useEffect(() => {
     console.log("[NAVBAR] layer", sel);
     props._functions[0](sel);
@@ -19,9 +25,8 @@ const Optionsfield = (props) => {
 
   useEffect(() => {
     console.log("[NAVBAR] showNeighbours", showNeighbours);
-    props._functions[2](showNeighbours)
+    props._functions[2](showNeighbours);
   }, [showNeighbours]);
-
 
   const renderLayerOptions = (option, i) => {
     return (
@@ -51,42 +56,57 @@ const Optionsfield = (props) => {
       </>
     );
   };
-  
+
   return (
     <>
       <Navbar bg="dark" variant="dark" expand="lg">
-        <Nav className="navbar navbar-expand-sm ">
-          <div className="navbar-nav">
-            <Nav.Link variant="light">Map-Manager</Nav.Link>
-            <NavDropdown
-              title={`Layer : ${
-                sel === "image_point_layer" ? "Images" : "Sequences"
-              }`}
-              id="basic-nav-dropdown"
-            >
-              {props.options.layers.map(renderLayerOptions)}
-            </NavDropdown>
-            <NavDropdown title={`Region : ${region}`} id="basic-nav-dropdown">
-              {props.options.regions.map(renderRegionOptions)}
-            </NavDropdown>
-            
-            <ToggleButton
-              className="mb-2"
-              id="toggle-neighbours"
-              type="checkbox"
-              variant={showNeighbours ? 'primary' : 'secondary'}
-              checked={showNeighbours}
-              value="1"
-              onChange={(e) => {
-                setShowNeighbours(e.currentTarget.checked)
-              }
-            }
-            >
-              Show Neighbours
-            </ToggleButton>
-            
-          </div>
-        </Nav>
+        <Container>
+          <Navbar.Brand>Map-Manager</Navbar.Brand>
+          <Nav className="me-auto">
+            {/* <div className="navbar-nav"> */}
+            <Navbar.Toggle aria-controls="basic-navbar-nav" />
+            <Navbar.Collapse id="basic-navbar-nav">
+              {/* <Nav.Link variant="light"></Nav.Link> */}
+              <NavDropdown
+                title={`Layer : ${
+                  sel === "image_point_layer" ? "Images" : "Sequences"
+                }`}
+                id="basic-nav-dropdown"
+              >
+                {props.options.layers.map(renderLayerOptions)}
+              </NavDropdown>
+              <NavDropdown title={`Region : ${region}`} id="basic-nav-dropdown">
+                {props.options.regions.map(renderRegionOptions)}
+              </NavDropdown>
+
+              {/* <ToggleButton
+                className="mb-2"
+                id="toggle-neighbours"
+                type="checkbox"
+                variant={showNeighbours ? "primary" : "secondary"}
+                checked={showNeighbours}
+                value="1"
+                onChange={(e) => {
+                  setShowNeighbours(e.currentTarget.checked);
+                }}
+              >
+                Show Neighbours
+              </ToggleButton>         */}
+              <Navbar.Text style={{ "paddingRight": 10 }}>Show Neighbours  </Navbar.Text>
+              <Form>
+                <Form.Switch
+                  onChange={(e) => {
+                    setShowNeighbours(e.currentTarget.checked);
+                  }}
+                  id="neighbour-switch"
+                  checked={showNeighbours}
+                  // disabled = {showNeighbours}// disabled 
+                />
+              </Form>
+            </Navbar.Collapse>
+            {/* </div> */}
+          </Nav>
+        </Container>
       </Navbar>
     </>
   );
