@@ -307,9 +307,9 @@ export default function Map() {
 
   return (
     <div>
-      {/* <div className="sidebarStyle">
+      <div className="sidebarStyle">
         Longitude: {lng} | Latitude: {lat} | Zoom: {zoom}
-      </div> */}
+      </div>
       <div ref={mapContainerRef} className="map-container" />
       <Navbar
         options={jsonOptions}
