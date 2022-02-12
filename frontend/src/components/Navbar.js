@@ -2,6 +2,7 @@ import React from "react";
 import { useState, useEffect } from "react";
 import { Navbar, NavDropdown, Nav } from "react-bootstrap";
 import { Form,ToggleButton, Container } from "react-bootstrap";
+import "./Navbar.css";
 const Optionsfield = (props) => {
   const [sel, setSel] = useState(props._active[0]);
   const [region, setRegion] = useState(props._active[1]);
@@ -58,6 +59,7 @@ const Optionsfield = (props) => {
   };
 
   return (
+    
     <>
       <Navbar bg="dark" variant="dark" expand="lg">
         <Container>
