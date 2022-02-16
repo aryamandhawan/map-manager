@@ -1,18 +1,13 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import { Navbar, NavDropdown, Nav } from "react-bootstrap";
-import { Form,ToggleButton, Container } from "react-bootstrap";
+import { Form, ToggleButton, Container } from "react-bootstrap";
 import "./Navbar.css";
 const Optionsfield = (props) => {
   const [sel, setSel] = useState(props._active[0]);
   const [region, setRegion] = useState(props._active[1]);
   const [showNeighbours, setShowNeighbours] = useState(false);
-  const [v,setv] = useState(props._active[2]);
 
-  useEffect(() => {
-    console.log("[NAVBAR] v", props._active[2]);
-    // props._functions[0](sel);
-  }, [v]);
 
   useEffect(() => {
     console.log("[NAVBAR] layer", sel);
@@ -26,7 +21,7 @@ const Optionsfield = (props) => {
 
   useEffect(() => {
     console.log("[NAVBAR] showNeighbours", showNeighbours);
-    props._functions[2](showNeighbours);
+    props._functions[2](showNeighbours); //Map.js ->toggleNeighboursState
   }, [showNeighbours]);
 
   const renderLayerOptions = (option, i) => {
@@ -59,7 +54,6 @@ const Optionsfield = (props) => {
   };
 
   return (
-    
     <>
       <Navbar bg="dark" variant="dark" expand="lg">
         <Container>
@@ -80,21 +74,9 @@ const Optionsfield = (props) => {
               <NavDropdown title={`Region : ${region}`} id="basic-nav-dropdown">
                 {props.options.regions.map(renderRegionOptions)}
               </NavDropdown>
-
-              {/* <ToggleButton
-                className="mb-2"
-                id="toggle-neighbours"
-                type="checkbox"
-                variant={showNeighbours ? "primary" : "secondary"}
-                checked={showNeighbours}
-                value="1"
-                onChange={(e) => {
-                  setShowNeighbours(e.currentTarget.checked);
-                }}
-              >
+              <Navbar.Text style={{ paddingRight: 10 }}>
                 Show Neighbours
-              </ToggleButton>         */}
-              <Navbar.Text style={{ "paddingRight": 10 }}>Show Neighbours  </Navbar.Text>
+              </Navbar.Text>
               <Form>
                 <Form.Switch
                   onChange={(e) => {
@@ -102,7 +84,7 @@ const Optionsfield = (props) => {
                   }}
                   id="neighbour-switch"
                   checked={showNeighbours}
-                  // disabled = {showNeighbours}// disabled 
+                  disabled = {sel === "image_point_layer" ? false : true}// disabled
                 />
               </Form>
             </Navbar.Collapse>
