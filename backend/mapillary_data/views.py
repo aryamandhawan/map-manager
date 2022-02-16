@@ -36,7 +36,7 @@ def get_image_data(request):
     print("\n\n")
 
     # DB CONNECTION 
-    myclient = pymongo.MongoClient("mongodb://localhost:27017/")
+    myclient = pymongo.MongoClient(***REMOVED***)
     mydb = myclient["mapillary_data"]
     collection_name = region+"_images"
     print("collection_name" , collection_name)
