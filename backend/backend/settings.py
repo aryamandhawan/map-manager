@@ -26,9 +26,9 @@ SECRET_KEY = '***REMOVED***'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost',
-'backend-env.eba-3tk2b33s.us-west-2.elasticbeanstalk.com',
-'backend-env1.eba-3tk2b33s.us-west-2.elasticbeanstalk.com']
+ALLOWED_HOSTS = ['localhost','127.0.0.1','44.239.47.139','35.164.0.195',
+                 'backend-env.eba-3tk2b33s.us-west-2.elasticbeanstalk.com',
+                 'backend-env1.eba-3tk2b33s.us-west-2.elasticbeanstalk.com']
 
 
 # Application definition
@@ -83,9 +83,19 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
 DATABASES = {
+    #     'default': {
+    #         'ENGINE': 'djongo',
+    #         'NAME': 'mapillary_data',
+    #     }
     'default': {
         'ENGINE': 'djongo',
-        'NAME': 'mapillary_data',
+        "CLIENT": {
+            "host": '***REMOVED***',
+            'port': 27017,
+            "username": '***REMOVED***',
+            "password": '***REMOVED***',
+            "authMechanism": "SCRAM-SHA-1",
+        },
     }
 }
 
