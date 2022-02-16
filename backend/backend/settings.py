@@ -26,9 +26,9 @@ SECRET_KEY = 'django-insecure-(74l_v20z*65m7+#@q9a2u8g&7r7iqh)@$ba+$!m73sg$5581p
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost',
-'backend-env.eba-3tk2b33s.us-west-2.elasticbeanstalk.com',
-'backend-env1.eba-3tk2b33s.us-west-2.elasticbeanstalk.com']
+ALLOWED_HOSTS = ['localhost','127.0.0.1','44.239.47.139','35.164.0.195',
+                 'backend-env.eba-3tk2b33s.us-west-2.elasticbeanstalk.com',
+                 'backend-env1.eba-3tk2b33s.us-west-2.elasticbeanstalk.com']
 
 
 # Application definition
@@ -83,9 +83,19 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
 DATABASES = {
+    #     'default': {
+    #         'ENGINE': 'djongo',
+    #         'NAME': 'mapillary_data',
+    #     }
     'default': {
         'ENGINE': 'djongo',
-        'NAME': 'mapillary_data',
+        "CLIENT": {
+            "host": 'mongodb+srv://zwelstern:Lallu%212345@cluster1.e8t1g.mongodb.net/mapillary_data?retryWrites=true&w=majority',
+            'port': 27017,
+            "username": 'zwelstern',
+            "password": 'Lallu!2345',
+            "authMechanism": "SCRAM-SHA-1",
+        },
     }
 }
 
