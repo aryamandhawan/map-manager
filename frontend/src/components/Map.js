@@ -1,12 +1,12 @@
 import React, { useRef, useEffect, useState } from "react";
 import mapboxgl from "mapbox-gl";
 import Navbar from "./Navbar";
+import NeighbourImages from "./NeighbourImages";
 import { Spinner, Card } from "react-bootstrap";
 import "./Map.css";
 import axios from "axios";
 
-mapboxgl.accessToken =
-  "***REMOVED***";
+mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_TOKEN;
 
 export default function Map() {
   const mapContainerRef = useRef(null);
@@ -269,7 +269,7 @@ export default function Map() {
   }
   // HANDLE UPDATES FROM USER INTERACTION WITH NAVBAR.
   const changeLayer = (i) => {
-    setFully_loaded(false)
+    setFully_loaded(false);
     if (map) {
       map.setLayoutProperty(i, "visibility", "visible");
       for (var j = 0; j < options.length; j++) {
@@ -281,7 +281,7 @@ export default function Map() {
     }
   };
   const changeRegion = (i) => {
-    setFully_loaded(false)
+    setFully_loaded(false);
     // jsonOptions.region_coordinates[0][i]
     setLng(jsonOptions.region_coordinates[0][i][0]);
     setLat(jsonOptions.region_coordinates[0][i][1]);
@@ -328,28 +328,34 @@ export default function Map() {
       <div className="sidebarStyle">
         Longitude: {lng} | Latitude: {lat} | Zoom: {zoom}
       </div>
-      <div ref={mapContainerRef} className="map-container" />
+      <div id="Mapbox-Map" ref={mapContainerRef} className="map-container" />
+
       <Navbar
         options={jsonOptions}
         _active={[active_layer, active_region, focusSeqRef]}
         _functions={[changeLayer, changeRegion, toggleNeighboursState]}
       />
-      <div className={fully_loadedRef.current == false ? "visible" : "invisible"}>
-      <Card
-        className="position-absolute bottom-50 end-50"
-        
+
+      <NeighbourImages />
+      
+      <div
+        id="Loading-spinner"
+        className={fully_loadedRef.current == false ? "visible" : "invisible"}
       >
-        <Spinner
-          className="col row align-items-center"
-          animation="border"
-          role="status"
-          className="align-self-center"
-        >
-          <span className="visually-hidden">Loading...</span>
-        </Spinner>
-        <Card.Body className="col row align-items-center">Loading...</Card.Body>
-      </Card>
-    </div>
+        <Card className="position-absolute bottom-50 end-50">
+          <Spinner
+            className="col row align-items-center"
+            animation="border"
+            role="status"
+            className="align-self-center"
+          >
+            <span className="visually-hidden">Loading...</span>
+          </Spinner>
+          <Card.Body className="col row align-items-center">
+            Loading...
+          </Card.Body>
+        </Card>
+      </div>
     </div>
   );
 }
