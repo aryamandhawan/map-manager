@@ -9,6 +9,7 @@ import axios from "axios";
 mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_TOKEN;
 
 export default function Map() {
+  console.log("token",mapboxgl.accessToken)
   const mapContainerRef = useRef(null);
   const [map, setMap] = useState(null);
   const num_neighbours = 5; // SET NUMBER OF NEIGHBOURS
