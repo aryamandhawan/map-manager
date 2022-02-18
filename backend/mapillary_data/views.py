@@ -6,15 +6,20 @@ import pymongo
 from bson import json_util
 from pprint import pprint
 import json
+import os
+import logging
 
 
 # Create your views here.
 def index(request):
     return HttpResponse('Django example')
-    
-import os
-import logging
-index_file_path = os.path.join('C:\\Users\\aryam\\Desktop\\Projects\\frontend', 'build', 'index.html')
+
+# DB CONNECTION 
+def db_connection():
+    myclient = pymongo.MongoClient("mongodb+srv://zwelstern:Lallu%212345@cluster1.e8t1g.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
+    return myclient
+
+index_file_path = os.path.joi n('C:\\Users\\aryam\\Desktop\\Projects\\frontend', 'build', 'index.html')
 def react(request):
     try:
         with open(index_file_path) as f:
@@ -35,8 +40,8 @@ def get_image_data(request):
     print("num_neighbours",num_neighbours)
     print("\n\n")
 
-    # DB CONNECTION 
-    myclient = pymongo.MongoClient("mongodb+srv://zwelstern:Lallu%212345@cluster1.e8t1g.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
+    # DB CONN
+    myclient = db_connection()
     mydb = myclient["mapillary_data"]
     collection_name = region+"_images"
     print("collection_name" , collection_name)
@@ -46,15 +51,11 @@ def get_image_data(request):
     if(id != None and geometry!=None):
         print("id != None and geometry!=None")
         geometry = json.loads(geometry)
-        print("geometry ",geometry, type(geometry))
-        print( 'geometry["coordinates"]', geometry["coordinates"] , type( geometry["coordinates"] ))
-        print( 'geometry["coordinates"][0]', geometry["coordinates"][0] , type( geometry["coordinates"][0] ))
         query_ = { "geometry" : { "$near" : { "$geometry" : { "type":"Point" , "coordinates":  [ geometry["coordinates"][0],geometry["coordinates"][1] ]   } } } }
         image_dataset = collection.find(query_).limit(int(num_neighbours))
         for image_data in image_dataset :
             images_data_json['features'].append(image_data["properties"]["id"])
     else:
-        print("NOT id != None and geometry!=None")
         image_dataset = collection.find()
         print("image_dataset",type(image_dataset))
         for image_data in image_dataset :
