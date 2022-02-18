@@ -13,15 +13,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost','127.0.0.1','44.239.47.139','35.164.0.195',
-                 'backend-env.eba-3tk2b33s.us-west-2.elasticbeanstalk.com',
-                 'backend-env1.eba-3tk2b33s.us-west-2.elasticbeanstalk.com']
+ALLOWED_HOSTS = ['localhost','127.0.0.1','https://backend.d30fg7o951dxss.amplifyapp.com/',
+                 'mapmanager.eba-psimzdjf.ap-southeast-2.elasticbeanstalk.com']
 
 
 # Application definition
@@ -83,6 +82,13 @@ DATABASES = {
     'default': {
         'ENGINE': 'djongo',
         "CLIENT": {
+            
+            # "host": os.environ.get('MONGODB_CONNECT_STR'),
+            # 'port': 27017,
+            # "username": os.environ.get('MONGODB_USERNAME'),
+            # "password": os.environ.get('MONGODB_PASSWORD'),
+            # "authMechanism": "SCRAM-SHA-1",
+            
             "host": os.environ['MONGODB_HOST'],
             'port': 27017,
             "username": os.environ['MONGODB_USERNAME'],
@@ -128,7 +134,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
 STATIC_URL = 'static/'
-
+STATIC_ROOT = os.path.join(BASE_DIR,'static/')
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
