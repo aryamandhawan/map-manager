@@ -9,17 +9,21 @@ import json
 import os
 import logging
 
+from dotenv import load_dotenv, find_dotenv
+load_dotenv(find_dotenv())
 
-# Create your views here.
+index_file_path = os.path.join('C:\\Users\\aryam\\Desktop\\Projects\\frontend', 'build', 'index.html')
+
 def index(request):
-    return HttpResponse('Django example')
+    return HttpResponse('map-manager backend api')
 
 # DB CONNECTION 
 def db_connection():
-    myclient = pymongo.MongoClient(***REMOVED***)
+    # Use Local DB
+    # myclient = pymongo.MongoClient("mongodb://localhost:27017/")
+    myclient = pymongo.MongoClient(os.environ['MONGODB_HOST'])
     return myclient
 
-index_file_path = os.path.join('C:\\Users\\aryam\\Desktop\\Projects\\frontend', 'build', 'index.html')
 def react(request):
     try:
         with open(index_file_path) as f:
@@ -62,22 +66,4 @@ def get_image_data(request):
             images_data_json['features'].append(image_data)
 
         images_data_json = json.loads(json_util.dumps(images_data_json))
-        # print("data sent",image_dataset.size())
-
-    # QUERY FOR ALL IMAGES
-    # for image_data in image_dataset :
-    #     # print(image_data["properties"]["id"])
-    #     images_data_json['features'].append(image_data)
-    # images_data_json = json.loads(json_util.dumps(images_data_json))
-    # print (new_d)
     return JsonResponse(images_data_json, safe=True)
-    # # request.
-    # if region == None:
-    #     region = "adelaide"
-    # try:
-    #     # with open(f"C:\\Users\\aryam\\Desktop\\Projects\\backend\\mapillary_data\\{region.lower()}_images.geojson") as f:
-    #     with open(f"C:\\Users\\aryam\\Desktop\\Projects\\backend\\mapillary_data\\adl_data.geojson") as f:
-    #         # print(f.read(), "\n\n\n")
-    #         return HttpResponse(f.read())
-    # except FileNotFoundError:
-    #     logging.exception('Production build of app not found')
