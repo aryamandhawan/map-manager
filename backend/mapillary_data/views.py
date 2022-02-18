@@ -19,7 +19,7 @@ def db_connection():
     myclient = pymongo.MongoClient("mongodb+srv://zwelstern:Lallu%212345@cluster1.e8t1g.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
     return myclient
 
-index_file_path = os.path.joi n('C:\\Users\\aryam\\Desktop\\Projects\\frontend', 'build', 'index.html')
+index_file_path = os.path.join('C:\\Users\\aryam\\Desktop\\Projects\\frontend', 'build', 'index.html')
 def react(request):
     try:
         with open(index_file_path) as f:
