@@ -6,7 +6,6 @@ import { Spinner, Card } from "react-bootstrap";
 import "./Map.css";
 import axios from "axios";
 
-mapboxgl.accessToken = "***REMOVED***";
 mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_TOKEN
 
 export default function Map() {
@@ -340,7 +339,7 @@ export default function Map() {
         _functions={[changeLayer, changeRegion, toggleNeighboursState]}
       />
 
-      <NeighbourImages />
+      {/* <NeighbourImages /> */}
       
       <div
         id="Loading-spinner"
