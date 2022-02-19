@@ -6,10 +6,10 @@ import { Spinner, Card } from "react-bootstrap";
 import "./Map.css";
 import axios from "axios";
 
-mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_TOKEN;
+mapboxgl.accessToken = "***REMOVED***";
 
 export default function Map() {
-  console.log("token",mapboxgl.accessToken)
+  
   const mapContainerRef = useRef(null);
   const [map, setMap] = useState(null);
   const num_neighbours = 5; // SET NUMBER OF NEIGHBOURS
@@ -94,6 +94,8 @@ export default function Map() {
     });
     // ON MAP LOAD ADD DATA SOURCES AND RENDER MAP | HANDLE IMAGE CLICK
     map.on("load", () => {
+      console.log("token",mapboxgl.accessToken)
+      console.log("ENV TOKEN",process.env.REACT_APP_MAPBOX_TOKEN)
       get_initial_data(map);
       setMap(map);
       map.setLayoutProperty(active_layer, "visibility", "visible");
