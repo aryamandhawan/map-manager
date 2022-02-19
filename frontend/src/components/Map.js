@@ -7,6 +7,7 @@ import "./Map.css";
 import axios from "axios";
 
 mapboxgl.accessToken = "***REMOVED***";
+mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_TOKEN
 
 export default function Map() {
   
