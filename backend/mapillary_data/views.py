@@ -16,8 +16,11 @@ def index(request):
 
 # DB CONNECTION 
 def db_connection():
-    mongo_conn = os.environ.get('MONGODB_HOST')
-    myclient = pymongo.MongoClient(mongo_conn)
+    # TODO: 
+    # 1. change connection back to mongodb atlas
+    # mongo_conn = os.environ.get('MONGODB_HOST')
+    # myclient = pymongo.MongoClient(mongo_conn)
+    myclient = pymongo.MongoClient("mongodb://localhost:27017/")
     return myclient
 
 index_file_path = os.path.join('C:\\Users\\aryam\\Desktop\\Projects\\frontend', 'build', 'index.html')
@@ -57,28 +60,12 @@ def get_image_data(request):
         for image_data in image_dataset :
             images_data_json['features'].append(image_data["properties"]["id"])
     else:
-        image_dataset = collection.find()
+        # TODO: 
+        # 1. change limit
+        image_dataset = collection.find().limit(5)
         print("image_dataset",type(image_dataset))
         for image_data in image_dataset :
             images_data_json['features'].append(image_data)
 
         images_data_json = json.loads(json_util.dumps(images_data_json))
-        # print("data sent",image_dataset.size())
-
-    # QUERY FOR ALL IMAGES
-    # for image_data in image_dataset :
-    #     # print(image_data["properties"]["id"])
-    #     images_data_json['features'].append(image_data)
-    # images_data_json = json.loads(json_util.dumps(images_data_json))
-    # print (new_d)
     return JsonResponse(images_data_json, safe=True)
-    # # request.
-    # if region == None:
-    #     region = "adelaide"
-    # try:
-    #     # with open(f"C:\\Users\\aryam\\Desktop\\Projects\\backend\\mapillary_data\\{region.lower()}_images.geojson") as f:
-    #     with open(f"C:\\Users\\aryam\\Desktop\\Projects\\backend\\mapillary_data\\adl_data.geojson") as f:
-    #         # print(f.read(), "\n\n\n")
-    #         return HttpResponse(f.read())
-    # except FileNotFoundError:
-    #     logging.exception('Production build of app not found')
