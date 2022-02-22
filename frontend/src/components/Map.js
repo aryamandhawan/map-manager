@@ -332,12 +332,20 @@ export default function Map() {
         Longitude: {lng} | Latitude: {lat} | Zoom: {zoom}
       </div>
       <div id="Mapbox-Map" ref={mapContainerRef} className="map-container" />
+
+      <Navbar
+        options={jsonOptions}
+        _active={[active_layer, active_region, focusSeqRef]}
+        _functions={[changeLayer, changeRegion, toggleNeighboursState]}
+      />
+
+      {/* <NeighbourImages /> */}
+      
       <div
         id="Loading-spinner"
-        className="position-absolute bottom-50 end-5  0"
-        visibility={fully_loadedRef.current == false ? "visible" : "invisible"}
+        className={fully_loadedRef.current == false ? "visible" : "invisible"}
       >
-        <Card >
+        <Card className="position-absolute bottom-50 end-50">
           <Spinner
             className="col row align-items-center"
             animation="border"
@@ -351,15 +359,6 @@ export default function Map() {
           </Card.Body>
         </Card>
       </div>
-      <Navbar
-        options={jsonOptions}
-        _active={[active_layer, active_region, focusSeqRef]}
-        _functions={[changeLayer, changeRegion, toggleNeighboursState]}
-      />
-
-      {/* <NeighbourImages /> */}
-      
-      
     </div>
   );
 }
