@@ -62,10 +62,10 @@ export default function Map() {
     _setFully_loaded(data);
   };
   // TODO: 
-  // 1. change Image_data_ur
+  // 1. change Image_data_url
   // const img_data_url = `https://cdn.glitch.global/2b9e76de-99e3-4e07-b284-4340598de754/${active_region.toLowerCase()}_images.geojson`;
-  // const img_data_url = ` https://cors-everywhere.herokuapp.com/http://mapmanager.eba-psimzdjf.ap-southeast-2.elasticbeanstalk.com/api/images?region=${active_region.toLowerCase()}`;
-  const img_data_url = `http://127.0.0.1:8000/api/images?region=${active_region.toLowerCase()}`
+  const img_data_url = ` https://cors-everywhere.herokuapp.com/http://mapmanager.eba-psimzdjf.ap-southeast-2.elasticbeanstalk.com/api/images?region=${active_region.toLowerCase()}`;
+  // const img_data_url = `http://127.0.0.1:8000/api/images?region=${active_region.toLowerCase()}`
   const seq_data_url = `https://cdn.glitch.global/2b9e76de-99e3-4e07-b284-4340598de754/${active_region.toLowerCase()}_sequences.geojson`;
   var popup = null;
 
