@@ -7,11 +7,15 @@ import "./Map.css";
 import axios from "axios";
 
 mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_TOKEN
-
 export default function Map() {
-  
   const mapContainerRef = useRef(null);
-  const [map, setMap] = useState(null);
+  // const [map, setMap] = useState(null);
+  const [map, _setmap] = useState(null);
+  const mapRef = useRef(map);
+  const setmap = (data) => {
+    mapRef.current = data;
+    _setmap(data);
+  };
   const num_neighbours = 5; // SET NUMBER OF NEIGHBOURS
   // // Adealide
   const [lng, setLng] = useState(138.603451251989);
@@ -57,9 +61,11 @@ export default function Map() {
     fully_loadedRef.current = data;
     _setFully_loaded(data);
   };
-
+  // TODO: 
+  // 1. change Image_data_url
   // const img_data_url = `https://cdn.glitch.global/2b9e76de-99e3-4e07-b284-4340598de754/${active_region.toLowerCase()}_images.geojson`;
   const img_data_url = ` https://cors-everywhere.herokuapp.com/http://mapmanager.eba-psimzdjf.ap-southeast-2.elasticbeanstalk.com/api/images?region=${active_region.toLowerCase()}`;
+  // const img_data_url = `http://127.0.0.1:8000/api/images?region=${active_region.toLowerCase()}`
   const seq_data_url = `https://cdn.glitch.global/2b9e76de-99e3-4e07-b284-4340598de754/${active_region.toLowerCase()}_sequences.geojson`;
   var popup = null;
 
@@ -94,10 +100,8 @@ export default function Map() {
     });
     // ON MAP LOAD ADD DATA SOURCES AND RENDER MAP | HANDLE IMAGE CLICK
     map.on("load", () => {
-      console.log("token",mapboxgl.accessToken)
-      console.log("ENV TOKEN",process.env.REACT_APP_MAPBOX_TOKEN)
       get_initial_data(map);
-      setMap(map);
+      setmap(map);
       map.setLayoutProperty(active_layer, "visibility", "visible");
       map.on("click", (e) => {
         revert_map_defaults(map, popup);
@@ -138,14 +142,33 @@ export default function Map() {
     });
     return () => map.remove();
   }, [active_layer, active_region]);
+  
+  useEffect(()=>{
+    if(map)
+    {if(toggleNeighbours=== true){
+      console.log("toggleNeighbours=== true") 
+      show_nearest_neighbours(null, map)
+    }
+    else {
+      console.log("toggleNeighbours=== false",focusSeq) 
 
+      mapRef.current.setPaintProperty("image_point_layer", "circle-color", [
+        "match",
+        ["get", "id"],
+        focusSeq,
+        "blue",
+        "purple",
+      ]);
+      setmap(map)
+    }}
+  },[toggleNeighbours])
   // HANDLE "ON CLICK" MAP INTERACTIONS
   function showPopup(layer_name, map, coordinates, sel_id, seq_id) {
     console.log("{showPopup}");
     if (layer_name === "image_point_layer") {
       var image = null;
       fetch(
-        `https://graph.mapillary.com/${sel_id}?fields=thumb_256_url&access_token=MLY%7C4603337513049480%7C2b5a735be0aa893f4e079309d23b1423`
+        `https://graph.mapillary.com/${sel_id}?fields=thumb_256_url&access_token=${process.env.REACT_APP_MAPILLARY_TOKEN}`
       )
         .then((res) => res.json())
         .then((result) => {
@@ -304,8 +327,8 @@ export default function Map() {
       axios
         .get(img_data_url, {
           params: {
-            image_id: e.features[0].properties.id,
-            geometry: e.features[0].geometry,
+            image_id: e==null? focusSeqRef.current: e.features[0].properties.id,
+            geometry: e==null? null: e.features[0].geometry,
             num_neighbours: num_neighbours,
           },
         })
