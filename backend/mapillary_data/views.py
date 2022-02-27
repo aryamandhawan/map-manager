@@ -72,7 +72,7 @@ def get_image_data(request):
     else:
         # TODO: 
         # 1. change limit
-        image_dataset = collection.find()
+        image_dataset = collection.find().limit(50)
         print("image_dataset",type(image_dataset))
         for image_data in image_dataset :
             images_data_json['features'].append(image_data)

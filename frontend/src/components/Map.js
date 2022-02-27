@@ -5,9 +5,10 @@ import NeighbourImages from "./NeighbourImages";
 import { Spinner, Card } from "react-bootstrap";
 import "./Map.css";
 import axios from "axios";
+import Sidebar from './sidebar/SideBar.js';
 
 mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_TOKEN
-export default function Map() {
+export default function Map({toggle}) {
   const mapContainerRef = useRef(null);
   // const [map, setMap] = useState(null);
   const [map, _setmap] = useState(null);
@@ -54,6 +55,7 @@ export default function Map() {
   const setToggleNeighbours = (data) => {
     toggleNeighboursRef.current = data;
     _setToggleNeighbours(data);
+
   };
   const [fully_loaded, _setFully_loaded] = useState(false);
   const fully_loadedRef = useRef(fully_loaded);
@@ -64,8 +66,8 @@ export default function Map() {
   // TODO: 
   // 1. change Image_data_url
   // const img_data_url = `https://cdn.glitch.global/2b9e76de-99e3-4e07-b284-4340598de754/${active_region.toLowerCase()}_images.geojson`;
-  const img_data_url = ` https://cors-everywhere.herokuapp.com/http://mapmanager.eba-psimzdjf.ap-southeast-2.elasticbeanstalk.com/api/images?region=${active_region.toLowerCase()}`;
-  // const img_data_url = `http://127.0.0.1:8000/api/images?region=${active_region.toLowerCase()}`
+  // const img_data_url = ` https://cors-everywhere.herokuapp.com/http://mapmanager.eba-psimzdjf.ap-southeast-2.elasticbeanstalk.com/api/images?region=${active_region.toLowerCase()}`;
+  const img_data_url = `http://127.0.0.1:8000/api/images?region=${active_region.toLowerCase()}`
   const seq_data_url = `https://cdn.glitch.global/2b9e76de-99e3-4e07-b284-4340598de754/${active_region.toLowerCase()}_sequences.geojson`;
   var popup = null;
 
@@ -149,7 +151,7 @@ export default function Map() {
       console.log("toggleNeighbours=== true") 
       show_nearest_neighbours(null, map)
     }
-    else {
+    else if(focusSeq!=null){
       console.log("toggleNeighbours=== false",focusSeq) 
 
       mapRef.current.setPaintProperty("image_point_layer", "circle-color", [
@@ -315,15 +317,16 @@ export default function Map() {
   };
   const toggleNeighboursState = (i) => {
     setToggleNeighbours(i);
+    
     console.log("[Map.js] toggleNeighbours", toggleNeighbours, "[Navbar] i", i);
   };
   // NEAREST NEIGHBOURS
   function show_nearest_neighbours(e, map) {
     console.log("{show_nearest_neighbours}");
-    setFully_loaded(false);
     console.log("Fully_LOADED ", fully_loadedRef.current);
     console.log("show_nearest_neighbours", toggleNeighboursRef.current);
-    if (toggleNeighboursRef.current) {
+    if (toggleNeighboursRef.current ) {
+      setFully_loaded(false);
       axios
         .get(img_data_url, {
           params: {
@@ -354,13 +357,10 @@ export default function Map() {
       <div className="sidebarStyle">
         Longitude: {lng} | Latitude: {lat} | Zoom: {zoom}
       </div>
+      
       <div id="Mapbox-Map" ref={mapContainerRef} className="map-container" />
 
-      <Navbar
-        options={jsonOptions}
-        _active={[active_layer, active_region, focusSeqRef]}
-        _functions={[changeLayer, changeRegion, toggleNeighboursState]}
-      />
+      
 
       {/* <NeighbourImages /> */}
       
@@ -382,6 +382,14 @@ export default function Map() {
           </Card.Body>
         </Card>
       </div>
+      <Navbar
+        options={jsonOptions}
+        _active={[active_layer, active_region, focusSeqRef.current]}
+        _functions={[changeLayer, changeRegion, toggleNeighboursState]}
+        toggle = {toggle}
+      />
+            {/* <Sidebar></Sidebar> */}
+
     </div>
   );
 }

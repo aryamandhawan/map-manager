@@ -6,6 +6,7 @@ import "./Navbar.css";
 const Optionsfield = (props) => {
   const [sel, setSel] = useState(props._active[0]);
   const [region, setRegion] = useState(props._active[1]);
+
   const [showNeighbours, setShowNeighbours] = useState(false);
 
 
@@ -21,7 +22,9 @@ const Optionsfield = (props) => {
 
   useEffect(() => {
     console.log("[NAVBAR] showNeighbours", showNeighbours);
+
     props._functions[2](showNeighbours); //Map.js ->toggleNeighboursState
+    
   }, [showNeighbours]);
 
   const renderLayerOptions = (option, i) => {
@@ -57,7 +60,7 @@ const Optionsfield = (props) => {
     <>
       <Navbar bg="dark" variant="dark" expand="lg">
         <Container>
-          <Navbar.Brand>Map-Manager</Navbar.Brand>
+          <Navbar.Brand onClick={props.toggle}>Map-Manager</Navbar.Brand>
           <Nav className="me-auto">
             {/* <div className="navbar-nav"> */}
             <Navbar.Toggle aria-controls="basic-navbar-nav" />
@@ -80,11 +83,12 @@ const Optionsfield = (props) => {
               <Form>
                 <Form.Switch
                   onChange={(e) => {
+                    props.toggle();
                     setShowNeighbours(e.currentTarget.checked);
                   }}
                   id="neighbour-switch"
                   checked={showNeighbours}
-                  disabled = {sel === "image_point_layer" ? false : true}// disabled
+                  disabled = {sel === "image_point_layer" && props._active[2]!=null? false : true}// disabled
                 />
               </Form>
             </Navbar.Collapse>
