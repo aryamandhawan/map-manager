@@ -14,12 +14,12 @@
   z-index: 1 !important;
 }
 
-.mapSBopen {
+.mapSBclosed {
   position: absolute;
   height:100%;
   width:100%;
 }
-.mapSBclosed {
+.mapSBopen {
   position: absolute;
   height:100%;
   width:75%;

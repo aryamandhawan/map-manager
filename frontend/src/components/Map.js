@@ -325,7 +325,7 @@ export default function Map({toggle}) {
     console.log("{show_nearest_neighbours}");
     console.log("Fully_LOADED ", fully_loadedRef.current);
     console.log("show_nearest_neighbours", toggleNeighboursRef.current);
-    if (toggleNeighboursRef.current ) {
+    if (toggleNeighboursRef.current && focusSeq!=null) {
       setFully_loaded(false);
       axios
         .get(img_data_url, {
