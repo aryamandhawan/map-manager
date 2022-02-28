@@ -1,6 +1,3 @@
-.App {
-}
-
 .map-container {
   position: absolute;
   top: 0;
@@ -8,12 +5,6 @@
   left: 0;
   right: 0;
 }
-
-.Button {
-  position: absolute;
-  z-index: 1 !important;
-}
-
 .mapSBclosed {
   position: absolute;
   height:100%;
@@ -24,4 +15,26 @@
   height:100%;
   width:75%;
   left:25%;
+}
+
+.sidebar {
+  min-width: 250px;
+  max-width: 250px;
+  max-height: 100vh;
+  background: #7386d5;
+  color: #fff;
+  margin-left: -250px;
+  transition: all 0.5s;
+}
+
+.sidebarIsopen {
+  max-height: 100vh;
+  min-width: 25%;
+  max-width: 25%;
+  margin-left: 0;
+  transition: 0.5s;
+  background: #7386d5;
+  color: #fff;
+  transition: all 0.5s;
+  height:100vh;
 }

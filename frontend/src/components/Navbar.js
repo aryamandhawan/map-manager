@@ -4,6 +4,7 @@ import { Navbar, NavDropdown, Nav } from "react-bootstrap";
 import { Form, ToggleButton, Container } from "react-bootstrap";
 import "./Navbar.css";
 const Optionsfield = (props) => {
+  // console.log("{sidebar.js}")
   const [sel, setSel] = useState(props._active[0]);
   const [region, setRegion] = useState(props._active[1]);
 
@@ -60,7 +61,7 @@ const Optionsfield = (props) => {
     <>
       <Navbar bg="dark" variant="dark" expand="lg">
         <Container>
-          <Navbar.Brand onClick={props.toggle}>Map-Manager</Navbar.Brand>
+          <Navbar.Brand onClick={props.toggleSidebar}>Map-Manager</Navbar.Brand>
           <Nav className="me-auto">
             {/* <div className="navbar-nav"> */}
             <Navbar.Toggle aria-controls="basic-navbar-nav" />
@@ -83,7 +84,7 @@ const Optionsfield = (props) => {
               <Form>
                 <Form.Switch
                   onChange={(e) => {
-                    props.toggle();
+                    props.toggleSidebar();
                     setShowNeighbours(e.currentTarget.checked);
                   }}
                   id="neighbour-switch"

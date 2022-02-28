@@ -1,6 +1,6 @@
 import {React,useState} from 'react';
 import { Button } from "react-bootstrap";
-
+import SideBar from "./components/sidebar/SideBar";
 import Map from './components/Map';
 import "./App.css";
 
@@ -10,9 +10,7 @@ function App() {
 
   return (
     <div id="App.js">
-      <div id="AppMap" className={sidebarIsOpen?"mapSBopen":"mapSBclosed"}>
-        <Map toggle={toggleSidebar} isOpen={sidebarIsOpen}/>
-      </div>
+        <Map toggleSidebar={toggleSidebar} sidebarIsOpen={sidebarIsOpen}/>
     </div>
 
   );

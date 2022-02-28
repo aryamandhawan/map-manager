@@ -5,10 +5,9 @@ import NeighbourImages from "./NeighbourImages";
 import { Spinner, Card } from "react-bootstrap";
 import "./Map.css";
 import axios from "axios";
-import Sidebar from './sidebar/SideBar.js';
-
-mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_TOKEN
-export default function Map({toggle}) {
+import SideBar from "./sidebar/SideBar.js";
+mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_TOKEN;
+export default function Map({ toggleSidebar, sidebarIsOpen }) {
   const mapContainerRef = useRef(null);
   // const [map, setMap] = useState(null);
   const [map, _setmap] = useState(null);
@@ -55,7 +54,6 @@ export default function Map({toggle}) {
   const setToggleNeighbours = (data) => {
     toggleNeighboursRef.current = data;
     _setToggleNeighbours(data);
-
   };
   const [fully_loaded, _setFully_loaded] = useState(false);
   const fully_loadedRef = useRef(fully_loaded);
@@ -63,14 +61,19 @@ export default function Map({toggle}) {
     fully_loadedRef.current = data;
     _setFully_loaded(data);
   };
-  // TODO: 
+  const [Neighbourdata, _setNeighbourdata] = useState(false);
+  const NeighbourdataRef = useRef(Neighbourdata);
+  const setNeighbourdata = (data) => {
+    NeighbourdataRef.current = data;
+    _setNeighbourdata(data);
+  };
+  // TODO:
   // 1. change Image_data_url
   // const img_data_url = `https://cdn.glitch.global/2b9e76de-99e3-4e07-b284-4340598de754/${active_region.toLowerCase()}_images.geojson`;
   // const img_data_url = ` https://cors-everywhere.herokuapp.com/http://mapmanager.eba-psimzdjf.ap-southeast-2.elasticbeanstalk.com/api/images?region=${active_region.toLowerCase()}`;
-  const img_data_url = `http://127.0.0.1:8000/api/images?region=${active_region.toLowerCase()}`
+  const img_data_url = `http://127.0.0.1:8000/api/images?region=${active_region.toLowerCase()}`;
   const seq_data_url = `https://cdn.glitch.global/2b9e76de-99e3-4e07-b284-4340598de754/${active_region.toLowerCase()}_sequences.geojson`;
   var popup = null;
-
   const default_image_layer_paint = {
     "circle-radius": 4,
     "circle-stroke-width": 0.6,
@@ -144,26 +147,26 @@ export default function Map({toggle}) {
     });
     return () => map.remove();
   }, [active_layer, active_region]);
-  
-  useEffect(()=>{
-    if(map)
-    {if(toggleNeighbours=== true){
-      console.log("toggleNeighbours=== true") 
-      show_nearest_neighbours(null, map)
-    }
-    else if(focusSeq!=null){
-      console.log("toggleNeighbours=== false",focusSeq) 
 
-      mapRef.current.setPaintProperty("image_point_layer", "circle-color", [
-        "match",
-        ["get", "id"],
-        focusSeq,
-        "blue",
-        "purple",
-      ]);
-      setmap(map)
-    }}
-  },[toggleNeighbours])
+  useEffect(() => {
+    if (map) {
+      if (toggleNeighbours === true) {
+        console.log("toggleNeighbours=== true");
+        show_nearest_neighbours(null, map);
+      } else if (focusSeq != null) {
+        console.log("toggleNeighbours=== false", focusSeq);
+
+        mapRef.current.setPaintProperty("image_point_layer", "circle-color", [
+          "match",
+          ["get", "id"],
+          focusSeq,
+          "blue",
+          "purple",
+        ]);
+        setmap(map);
+      }
+    }
+  }, [toggleNeighbours]);
   // HANDLE "ON CLICK" MAP INTERACTIONS
   function showPopup(layer_name, map, coordinates, sel_id, seq_id) {
     console.log("{showPopup}");
@@ -317,7 +320,6 @@ export default function Map({toggle}) {
   };
   const toggleNeighboursState = (i) => {
     setToggleNeighbours(i);
-    
     console.log("[Map.js] toggleNeighbours", toggleNeighbours, "[Navbar] i", i);
   };
   // NEAREST NEIGHBOURS
@@ -325,13 +327,14 @@ export default function Map({toggle}) {
     console.log("{show_nearest_neighbours}");
     console.log("Fully_LOADED ", fully_loadedRef.current);
     console.log("show_nearest_neighbours", toggleNeighboursRef.current);
-    if (toggleNeighboursRef.current ) {
+    if (toggleNeighboursRef.current) {
       setFully_loaded(false);
       axios
         .get(img_data_url, {
           params: {
-            image_id: e==null? focusSeqRef.current: e.features[0].properties.id,
-            geometry: e==null? null: e.features[0].geometry,
+            image_id:
+              e == null ? focusSeqRef.current : e.features[0].properties.id,
+            geometry: e == null ? null : e.features[0].geometry,
             num_neighbours: num_neighbours,
           },
         })
@@ -345,6 +348,8 @@ export default function Map({toggle}) {
             "red",
           ]);
           setFully_loaded(true);
+          setNeighbourdata(data.data["features"]);
+          console.log("data.data",typeof(data.data["features"]))
         })
         .catch((e) => {
           console.log("error", e);
@@ -353,43 +358,37 @@ export default function Map({toggle}) {
   }
 
   return (
-    <div id="Map.js" className="mapjs-div">
-      <div className="sidebarStyle">
-        Longitude: {lng} | Latitude: {lat} | Zoom: {zoom}
+    <>
+      <div id="Map" className={sidebarIsOpen ? "mapSBopen" : "mapSBclosed"}>
+        <div className="lngLat">
+          Longitude: {lng} | Latitude: {lat} | Zoom: {zoom}
+        </div>
+        <div id="Mapbox-Map" ref={mapContainerRef} className="map-container" />
+        <div id="Loading-spinner"
+          className={fully_loadedRef.current == false ? "visible" : "invisible"}
+        >
+          <Card className="position-absolute bottom-50 end-50">
+            <Spinner
+              className="col row align-items-center"
+              animation="border"
+              role="status"
+              className="align-self-center"
+            >
+              <span className="visually-hidden">Loading...</span>
+            </Spinner>
+            <Card.Body className="col row align-items-center">
+              Loading...
+            </Card.Body>
+          </Card>
+        </div>
+        <Navbar
+          options={jsonOptions}
+          _active={[active_layer, active_region, focusSeqRef.current]}
+          _functions={[changeLayer, changeRegion, toggleNeighboursState]}
+          toggleSidebar={toggleSidebar}
+        />
       </div>
-      
-      <div id="Mapbox-Map" ref={mapContainerRef} className="map-container" />
-
-      
-
-      {/* <NeighbourImages /> */}
-      
-      <div
-        id="Loading-spinner"
-        className={fully_loadedRef.current == false ? "visible" : "invisible"}
-      >
-        <Card className="position-absolute bottom-50 end-50">
-          <Spinner
-            className="col row align-items-center"
-            animation="border"
-            role="status"
-            className="align-self-center"
-          >
-            <span className="visually-hidden">Loading...</span>
-          </Spinner>
-          <Card.Body className="col row align-items-center">
-            Loading...
-          </Card.Body>
-        </Card>
-      </div>
-      <Navbar
-        options={jsonOptions}
-        _active={[active_layer, active_region, focusSeqRef.current]}
-        _functions={[changeLayer, changeRegion, toggleNeighboursState]}
-        toggle = {toggle}
-      />
-            {/* <Sidebar></Sidebar> */}
-
-    </div>
+      <SideBar toggleSidebar={toggleSidebar} sidebarIsOpen={sidebarIsOpen} Neighbourdata={Neighbourdata}/>
+    </>
   );
 }
