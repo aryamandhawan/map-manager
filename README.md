@@ -6,7 +6,7 @@
  Still in progress. Supports loading and rendering Images and Sequences
 
 ## *New features to be added* 
-- [ ] Adding data from more regions.
+- [x] Adding data from more regions.
 - [x] Filter images based on data and location.
 - [ ] Visualising COVID spread timeline on the world map.
 
