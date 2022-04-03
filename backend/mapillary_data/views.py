@@ -18,9 +18,9 @@ def index(request):
 def db_connection():
     # TODO: 
     # 1. change connection back to mongodb atlas
-    mongo_conn = os.environ.get('MONGODB_HOST')
-    myclient = pymongo.MongoClient(mongo_conn)
-    # myclient = pymongo.MongoClient("mongodb://localhost:27017/")
+    # mongo_conn = os.environ.get('MONGODB_HOST')
+    # myclient = pymongo.MongoClient(mongo_conn)
+    myclient = pymongo.MongoClient("mongodb://localhost:27017/")
     return myclient
 
 index_file_path = os.path.join('C:\\Users\\aryam\\Desktop\\Projects\\frontend', 'build', 'index.html')
