@@ -1,5 +1,8 @@
-import React from 'react';
+import {React,useState} from 'react';
+import { Button } from "react-bootstrap";
+import SideBar from "./components/sidebar/SideBar";
 import Map from './components/Map';
+import "./App.css";
 
 function App() {
   const [sidebarIsOpen, setSidebarOpen] = useState(false);
